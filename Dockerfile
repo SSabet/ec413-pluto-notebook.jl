@@ -1,5 +1,5 @@
 FROM jupyter/base-notebook:latest
-https://julialang-s3.julialang.org/bin/linux/aarch64/1.9/julia-1.9.3-linux-aarch64.tar.gz
+
 USER root
 RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.3-linux-x86_64.tar.gz && \
     tar -xvzf julia-1.9.3-linux-x86_64.tar.gz && \
