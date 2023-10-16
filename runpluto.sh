@@ -15,7 +15,11 @@ Pluto.run(
     port=${1},
     launch_browser=false,
     require_secret_for_open_links=false,
-    require_secret_for_access=false
+    require_secret_for_access=false,
+    dismiss_update_notification=true,
+    show_file_system=false,
+    sysimage=\"/home/jovyan/sysimage.so\"
 )"
 echo ${command}
-julia --sysimage sys_plots.so --project="/home/jovyan" --optimize=0 -e "${command}"
+#julia --sysimage sys_plots.so --project="/home/jovyan" --optimize=0 -e "${command}"
+julia --sysimage="/home/jovyan/sysimage.so" --project="/home/jovyan" --optimize=0 -e "${command}"

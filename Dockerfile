@@ -1,6 +1,34 @@
 FROM jupyter/base-notebook:latest
 
 USER root
+
+RUN pip install --no-cache --upgrade pip
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget && \
+    apt-get install -y --no-install-recommends build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+USER ${NB_USER}
+
+COPY --chown=${NB_USER}:users ./plutoserver ./plutoserver
+COPY --chown=${NB_USER}:users ./environment.yml ./environment.yml
+COPY --chown=${NB_USER}:users ./setup.py ./setup.py
+COPY --chown=${NB_USER}:users ./runpluto.sh ./runpluto.sh
+COPY --chown=${NB_USER}:users ./notebooks ./notebooks
+COPY --chown=${NB_USER}:users ./Project.toml ./Project.toml
+COPY --chown=${NB_USER}:users ./Manifest.toml ./Manifest.toml
+COPY --chown=${NB_USER}:users ./warmup.jl ./warmup.jl
+COPY --chown=${NB_USER}:users ./create_sysimage.jl ./create_sysimage.jl
+
+RUN jupyter labextension install @jupyterhub/jupyter-server-proxy && \
+    jupyter lab build && \
+    jupyter lab clean && \
+    pip install . --no-cache-dir && \
+    rm -rf ~/.cache
+
+USER root
+
 RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.3-linux-x86_64.tar.gz && \
     tar -xvzf julia-1.9.3-linux-x86_64.tar.gz && \
     mv julia-1.9.3 /opt/ && \
@@ -9,46 +37,33 @@ RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.3-linux-
 
 USER ${NB_USER}
 
-COPY --chown=${NB_USER}:users ./plutoserver ./plutoserver
-COPY --chown=${NB_USER}:users ./environment.yml ./environment.yml
-COPY --chown=${NB_USER}:users ./setup.py ./setup.py
-COPY --chown=${NB_USER}:users ./runpluto.sh ./runpluto.sh
-
-COPY --chown=${NB_USER}:users ./notebooks ./notebooks
-COPY --chown=${NB_USER}:users ./Project.toml ./Project.toml
-COPY --chown=${NB_USER}:users ./Manifest.toml ./Manifest.toml
-
-COPY --chown=${NB_USER}:users ./warmup.jl ./warmup.jl
-COPY --chown=${NB_USER}:users ./create_sysimage.jl ./create_sysimage.jl
-
 ENV USER_HOME_DIR /home/${NB_USER}
 ENV JULIA_PROJECT ${USER_HOME_DIR}
 ENV JULIA_DEPOT_PATH ${USER_HOME_DIR}/.julia
 WORKDIR ${USER_HOME_DIR}
 
-RUN julia -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate();"
+RUN julia --project=${USER_HOME_DIR} -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate(); Pkg.precompile()"
 
-# downgrade jupyter-server
-# USER root
+RUN julia --project=${USER_HOME_DIR} create_sysimage.jl
+RUN julia -J${USER_HOME_DIR}/sysimage.so --project=${USER_HOME_DIR} -e "import Pkg; Pkg.precompile()"
+RUN julia --project=${USER_HOME_DIR} -e "import Pkg; Pkg.precompile()"
+
+# RUN julia -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate();"
 #
-# RUN pip install --no-cache --upgrade pip && \
-#     pip install --no-cache jupyter-server 'jupyter-server<2.0.0'
+# # downgrade jupyter-server
+# # USER root
+# #
+# # RUN pip install --no-cache --upgrade pip && \
+# #     pip install --no-cache jupyter-server 'jupyter-server<2.0.0'
+# #
+# # RUN apt-get update && \
+# #     apt-get install -y --no-install-recommends wget && \
+# #     apt-get install -y --no-install-recommends build-essential && \
+# #     apt-get clean && rm -rf /var/lib/apt/lists/*
 #
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends wget && \
-#     apt-get install -y --no-install-recommends build-essential && \
-#     apt-get clean && rm -rf /var/lib/apt/lists/*
+#
+# RUN julia create_sysimage.jl
+#
+# USER ${NB_USER}
 
-USER root
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN julia create_sysimage.jl
 
-USER ${NB_USER}
-
-RUN jupyter labextension install @jupyterhub/jupyter-server-proxy && \
-    jupyter lab build && \
-    jupyter lab clean && \
-    pip install . --no-cache-dir && \
-    rm -rf ~/.cache
