@@ -28,10 +28,21 @@ WORKDIR ${USER_HOME_DIR}
 
 RUN julia -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate();"
 
+# downgrade jupyter-server
 USER root
+
+RUN pip install --no-cache --upgrade pip && \
+    pip install --no-cache jupyter-server 'jupyter-server<2.0.0'
+
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget && \
     apt-get install -y --no-install-recommends build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# USER root
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends build-essential && \
+#     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN julia create_sysimage.jl
 
 USER ${NB_USER}
