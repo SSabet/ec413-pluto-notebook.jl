@@ -1,5 +1,6 @@
 [deps]
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 PlotlyLight = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
 Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
