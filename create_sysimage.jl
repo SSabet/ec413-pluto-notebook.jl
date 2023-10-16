@@ -1,5 +1,6 @@
 using PackageCompiler
 create_sysimage([:Pluto, :PlutoUI, :PlotlyLight, :LaTeXStrings];
+                sysimage_path="sys_plots.so",
                 precompile_execution_file = "warmup.jl",
-                replace_default = true,
+                #replace_default = true,
                 cpu_target = PackageCompiler.default_app_cpu_target())
