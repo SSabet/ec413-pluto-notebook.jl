@@ -16,10 +16,11 @@ ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
 ENV HOME /home/${NB_USER}
 
-RUN adduser --disabled-password \
-    --gecos "Default user" \
-    --uid ${NB_UID} \
-    ${NB_USER}
+# RUN adduser --disabled-password \
+#     --gecos "Default user" \
+#     --uid ${NB_UID} \
+#     ${NB_USER}
+USER ${NB_USER}
 
 COPY --chown=${NB_USER}:users ./plutoserver ./plutoserver
 COPY --chown=${NB_USER}:users ./environment.yml ./environment.yml
