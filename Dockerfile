@@ -9,7 +9,17 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-USER ${NB_USER}
+#USER ${NB_USER}
+ARG NB_USER=jovyan
+ARG NB_UID=1000
+ENV USER ${NB_USER}
+ENV NB_UID ${NB_UID}
+ENV HOME /home/${NB_USER}
+
+RUN adduser --disabled-password \
+    --gecos "Default user" \
+    --uid ${NB_UID} \
+    ${NB_USER}
 
 COPY --chown=${NB_USER}:users ./plutoserver ./plutoserver
 COPY --chown=${NB_USER}:users ./environment.yml ./environment.yml
@@ -20,6 +30,10 @@ COPY --chown=${NB_USER}:users ./Project.toml ./Project.toml
 COPY --chown=${NB_USER}:users ./Manifest.toml ./Manifest.toml
 COPY --chown=${NB_USER}:users ./warmup.jl ./warmup.jl
 COPY --chown=${NB_USER}:users ./create_sysimage.jl ./create_sysimage.jl
+
+USER root
+RUN chown -R ${NB_UID} ${HOME}
+USER ${NB_USER}
 
 RUN jupyter labextension install @jupyterhub/jupyter-server-proxy && \
     jupyter lab build && \
