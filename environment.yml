@@ -7,4 +7,4 @@ dependencies:
   - jupyterlab-git
   - pip:
       - jupyter-contrib-nbextensions
-      - jupyterlab_latex
+   #   - jupyterlab_latex
