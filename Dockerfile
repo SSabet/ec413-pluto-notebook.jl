@@ -50,7 +50,7 @@ RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.3-linux-
     ln -s /opt/julia-1.9.3/bin/julia /usr/local/bin/julia && \
     rm julia-1.9.3-linux-x86_64.tar.gz
 
-RUN  apt-get install -y dvipng
+RUN apt-get update && apt-get install -y dvipng
 
 USER ${NB_USER}
 
