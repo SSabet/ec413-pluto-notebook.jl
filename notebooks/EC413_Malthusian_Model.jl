@@ -94,11 +94,11 @@ end
 
 # ╔═╡ 9790bd65-3de3-4cbb-8f70-9b267ee92dee
 begin
-	plot(time, yₑ, label = "England", lw = 2, xlabel = "time", ylabel = "Y_t/N_t")
+	plot(time, yₑ, label = "England", lw = 2, xlabel = "time", ylabel = "Y_t/N_t",fmt=:png)
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
 	p_y = plot!(time, yᵢ, label = "Ireland", lw = 2)
 
-	plot(time, Nₑ, label = "England", lw = 2, xlabel = "time", ylabel = "N_t")
+	plot(time, Nₑ, label = "England", lw = 2, xlabel = "time", ylabel = "N_t",fmt=:png)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
 	p_N = plot!(time, Nᵢ, label = "Ireland", ls=:dash, lw = 2)
 	
