@@ -16,10 +16,11 @@ end
 
 # ╔═╡ 58753ecf-c322-4fb6-bb80-4abfc7cb5459
 begin
-	using Plots
 	using PlutoUI
 	#using PlotlyLight
+	#using PyPlot
 	using LaTeXStrings
+	using Plots
 	#pyplot()
 	#Preset.Template.plotly_dark!()
 	TableOfContents()
@@ -42,6 +43,7 @@ This is an **interactive** _Julia_ notebook to let you play around with examples
 - Feel free to edit this notebook as you wish! Change or delete the cells, values, functional forms etc., add new cells and experiment; break it and learn! **Don't worry, you won't be breaking the source code!** If you ended up breaking your copy too much, you can always close the browser and reload it again.
 - In almost all cases, I make the cells (including either the markdown or th Julia code) invisible; If you're interested in reading, inspecting or even playing around with the code, hover your mouse to the left of a cell, there is an ``eye'' icon you can click on for the code to become visible; click it once more to make it invisible again.
 - If you are interested in editing the code and you don't know Julia (but you know Matlab or Python), there is a shortcut: you can use the [excellent cheatsheet](https://cheatsheets.quantecon.org/) here. If you know R but not Julia, you can use this [R-Julia comparison cheatsheet](https://github.com/sswatson/cheatsheets/blob/master/jpr-cheatsheet.pdf).
+- If you are going to inspect the code, notice that the Julia code in these notebooks are mainly for educational purposes, so it's not necessarily efficient or idiomatic. It's mostly written with the purpose that a wider range of the students can more easily understand the code.
 
 Any questions, suggestions or issues? Don't hesitate to get in touch!
 
@@ -182,13 +184,13 @@ begin
 	ks = 0:k_ss/32:k_ss*2
 	save = k -> s*k^α
  	deprec= (n + g +n*g+δ)*ks
-	plot(ks, save.(ks), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = L"Saving/Depreciation")
+	plot(ks, save.(ks), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = L"Saving/Depreciation",fmt=:png)
 	plot!(ks, deprec, label = "Depreciation", ls=:dash, lw = 2)
 	p_sav = plot!([k_ss], [save(k_ss)], seriestype = :scatter, label="Steady State")
 	
 	η = (1+g)*(1+n)
 	ks_next = ((1-δ)*ks + save.(ks))/η
-	plot(ks, ks_next, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$")
+	plot(ks, ks_next, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$",fmt=:png)
 	p_next = plot!(ks, ks, label = "45ᵒ line", ls=:dash, lw = 2)
 	p_next = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State")
 
@@ -302,19 +304,19 @@ begin
 	ks_2 = 0:(k_ss/32):(k_ss*2)
 	#save = k -> s*k^α
  	deprec_2= (n + g +n*g+δ)*ks_2
-	plot(ks_2, save.(ks_2), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = L"Saving/Depreciation", aspect_ratio = :none)
+	plot(ks_2, save.(ks_2), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = L"Saving/Depreciation", aspect_ratio = :none,fmt=:png)
 	plot!(ks_2, deprec_2, label = "Depreciation", ls=:dash, lw = 2)
 	p_sav_2 = plot!([k_ss], [save(k_ss)], seriestype = :scatter, label="Steady State")
 	
 	#η = (1+g)*(1+n)
 	ks_next_2 = ((1-δ)*ks_2 + save.(ks_2))/η
 	Δks = ks_next_2-ks_2
-	plot(ks_2, ks_next_2, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$")
+	plot(ks_2, ks_next_2, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$",fmt=:png)
 	p_next_2 = plot!(ks_2, ks_2, label = "45ᵒ line", ls=:dash, lw = 2)
 	p_next_2 = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State", aspect_ratio = :none)
 
 	
-	plot(ks_2, Δks, lw = 2, xlabel = L"$k_t$", ylabel = L"$\Delta k_{t+1}$", label = L"$\Delta k_{t+1}$")
+	plot(ks_2, Δks, lw = 2, xlabel = L"$k_t$", ylabel = L"$\Delta k_{t+1}$", label = L"$\Delta k_{t+1}$",fmt=:png)
 	plot!(ks_2,zeros(length(ks_2)), label = "zero", ls=:dash, lw = 2)
 	p_dk = plot!([k_ss], [0], seriestype = :scatter, label="Steady State", aspect_ratio = :none)
 	plot(p_sav_2,p_next_2, p_dk, layout=(2,2))
@@ -479,7 +481,7 @@ begin
 	sgold = α1
 	c_golden = (1-sgold)*(sgold/(n+g+n*g+δ))^(α1/(1-α1))
 	
-	plot(ss, cs, xlabel = "s", ylabel="Consumption per capita", lw=2, label = "C/N")
+	plot(ss, cs, xlabel = "s", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
 	#vline([c_golden])
 	plot!([α1], seriestype = :vline, linestyle=:dash, label = "")
 	plot!([α1],[c_golden], seriestype = :scatter, label="Golden-rule consumption")
@@ -531,7 +533,7 @@ end
 
 # ╔═╡ 0d6af4bc-011f-457a-b4d0-60eda96aa460
 begin	
-	plot(1:T, k, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$")
+	plot(1:T, k, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
 	plot!(1:T, k_ss*ones(T), label = L"Steady State $\bar{k}$", ls=:dash, lw = 2)
 end
 
@@ -539,19 +541,19 @@ end
 begin
 	YN = Y./N
 	YN_gr = YN[2:end]./YN[1:end-1] .- 1
-	plot(1:T-1, YN_gr, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"growth rate of $\frac{Y_{t}}{N_{t}}$", aspect_ratio = :none)
+	plot(1:T-1, YN_gr, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"growth rate of $\frac{Y_{t}}{N_{t}}$", aspect_ratio = :none,fmt=:png)
 	p_kaldor1 = plot!(1:T-1, g*ones(T-1), ls = :dash, lw=2, label = L"BGP")
 
 	KY = K./Y
-	plot(1:T-1, KY[1:T-1], label = "over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none)
+	plot(1:T-1, KY[1:T-1], label = "over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none,fmt=:png)
 	p_kaldor2 = plot!(1:T-1, (k_ss^(1-α))*ones(T-1), ls = :dash, lw=2, label = L"BGP")
 
 	r = α*k.^(α-1)
-	plot(1:T-1, r[1:T-1], label = L"$r_t$ (over time)", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none)
+	plot(1:T-1, r[1:T-1], label = L"$r_t$ (over time)", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none,fmt=:png)
 	p_kaldor3 = plot!(1:T-1, (α*k_ss^(α-1))*ones(T-1), ls = :dash, lw=2, label = L"$\bar{r}$ (BGP)")
 
 	KS = r.*K./Y
-	plot(1:T-1, KS[1:T-1], label = "Capital Share over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{r_t K_t}{Y_t}$", aspect_ratio = :none, ylimits=(0,1))
+	plot(1:T-1, KS[1:T-1], label = "Capital Share over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{r_t K_t}{Y_t}$", aspect_ratio = :none, ylimits=(0,1),fmt=:png)
 	p_kaldor4 = plot!(1:T-1, α*ones(T-1), ls = :dash, lw=2, label = "Capital share (BGP)")
 
 	plot(p_kaldor1,p_kaldor2, p_kaldor3, p_kaldor4, layout=(2,2))
@@ -563,7 +565,7 @@ begin
 	Aₕ, Kₕ, Nₕ, Yₕ = trajectories(A₁, K₁ₕ, N₁,α, g, n, δ, s, T)
 	kₕ = Kₕ./(Aₕ.*Nₕ)
 	begin	
-	plot(1:T, kₕ, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$")
+	plot(1:T, kₕ, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
 	plot!(1:T, k_ss*ones(T), label = L"Steady State $\bar{k}$", ls=:dash, lw = 2)
 	end
 end
@@ -713,9 +715,9 @@ version = "1.16.1+1"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
-git-tree-sha1 = "02aa26a4cf76381be7f66e020a3eddeb27b0a092"
+git-tree-sha1 = "cd67fc487743b2f0fd4380d4cbd3a24660d0eec8"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
-version = "0.7.2"
+version = "0.7.3"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
@@ -1360,9 +1362,9 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "c60ec5c62180f27efea3ba2908480f8055e17cee"
+git-tree-sha1 = "5165dfb9fd131cf0c6957a3a7605dede376e7b63"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.1.1"
+version = "1.2.0"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
@@ -1411,10 +1413,13 @@ deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
-deps = ["Random", "Test"]
-git-tree-sha1 = "9a6ae7ed916312b41236fcef7e0af564ef934769"
+git-tree-sha1 = "49cbf7c74fafaed4c529d47d48c8f7da6a19eb75"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.9.13"
+version = "0.10.1"
+weakdeps = ["Random", "Test"]
+
+    [deps.TranscodingStreams.extensions]
+    TestExt = ["Test", "Random"]
 
 [[deps.Tricks]]
 git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
@@ -1756,7 +1761,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─58753ecf-c322-4fb6-bb80-4abfc7cb5459
+# ╠═58753ecf-c322-4fb6-bb80-4abfc7cb5459
 # ╟─1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
 # ╟─0fee2ca0-7f57-4647-a187-36a9b3130cad
 # ╟─f8f03434-6a0a-4c91-a084-7f86a13eaf93
@@ -1769,7 +1774,7 @@ version = "1.4.1+1"
 # ╟─cc25bdab-c8df-4640-ae4f-d58ba44fc263
 # ╟─29ee6c36-bcfb-40bc-bddf-7f8ba3d47c50
 # ╟─be361a68-cf13-4493-a810-f327c5f97f2c
-# ╟─3c9adefb-048c-4584-9ba8-b4ac22fdcd32
+# ╠═3c9adefb-048c-4584-9ba8-b4ac22fdcd32
 # ╟─53cc927f-02ec-4403-a3dc-6ea3791359b6
 # ╟─66dbeb2a-32be-499a-a1d4-20c2647b8913
 # ╠═2a5dd85f-8b53-4330-be69-3bee6b731caa

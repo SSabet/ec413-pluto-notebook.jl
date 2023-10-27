@@ -9,7 +9,7 @@ begin
 	using Plots
 	#using PlotlyLight
 	using LaTeXStrings
-	#pyplot()
+	pyplot()
 	#Preset.Template.plotly_dark!()
 	nothing
 end
@@ -1205,7 +1205,7 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─58753ecf-c322-4fb6-bb80-4abfc7cb5459
+# ╠═58753ecf-c322-4fb6-bb80-4abfc7cb5459
 # ╠═1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
 # ╠═d8947a2b-0b40-4d2c-a301-7a6b239aa79f
 # ╠═b9a169a8-7682-4b72-9a67-42101c33e439
