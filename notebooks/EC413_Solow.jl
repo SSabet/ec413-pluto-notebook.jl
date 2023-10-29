@@ -298,7 +298,7 @@ begin
 	ks_2 = 0:(k_ss/32):(k_ss*2)
 	#save = k -> s*k^α
  	deprec_2= (n + g +n*g+δ)*ks_2
-	plot(ks_2, save.(ks_2), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = L"Saving/Depreciation", aspect_ratio = :none,fmt=:png)
+	plot(ks_2, save.(ks_2), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = "Saving, Depreciation", aspect_ratio = :none,fmt=:png)
 	plot!(ks_2, deprec_2, label = "Depreciation", ls=:dash, lw = 2)
 	p_sav_2 = plot!([k_ss], [save(k_ss)], seriestype = :scatter, label="Steady State")
 	
@@ -483,7 +483,7 @@ begin
 	sgold = α1
 	c_golden = (1-sgold)*(sgold/(n+g+n*g+δ))^(α1/(1-α1))
 	
-	plot(ss, cs, xlabel = "s", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
+	plot(ss, cs, xlabel = "s (saving rate)", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
 	#vline([c_golden])
 	plot!([α1], seriestype = :vline, linestyle=:dash, label = "")
 	plot!([α1],[c_golden], seriestype = :scatter, label="Golden-rule consumption")
@@ -632,11 +632,11 @@ begin
 	YN_ces = Y_ces./N_ces
 
 	YN_gr_ces = YN_ces[2:end]./YN_ces[1:end-1] .- 1
-	plot(1:T₂-1, YN_gr_ces, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"growth rate of $\frac{Y_{t}}{N_{t}}$", aspect_ratio = :none,fmt=:png)
+	plot(1:T₂-1, YN_gr_ces, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{Y_{t+1}/N_{t+1}}{Y_t/N_t}-1$", aspect_ratio = :none, fmt=:png)
 	p_kaldor1_ces = plot!(1:T₂-1, g*ones(T₂-1), ls = :dash, lw=2, label = L"BGP")
 
 	KY_ces = K_ces./Y_ces
-	plot(1:T₂-1, KY_ces[1:T₂-1], label = "over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none,fmt=:png)
+	plot(1:T₂-1, KY_ces[1:T₂-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none, legend=:bottomright, fmt=:png)
 	p_kaldor2_ces = plot!(1:T₂-1, (k_ss_ces/y_ss_ces)*ones(T₂-1), ls = :dash, lw=2, label = L"BGP")
 
 	if σ==0
@@ -650,8 +650,8 @@ begin
 		r_ss_ces = σ==1 ? α*k_ss_ces^(α-1) : α*(α+(1-α)*k_ss_ces^(1/σ - 1))^(1/(1-σ))
 	end	
 	
-	plot(1:T₂-1, r_ces[1:T₂-1], label = L"$r_t$ (over time)", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none,fmt=:png)
-	p_kaldor3_ces = plot!(1:T₂-1, (r_ss_ces)*ones(T₂-1), ls = :dash, lw=2, label = L"$\bar{r}$ (BGP)")
+	plot(1:T₂-1, r_ces[1:T₂-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none,fmt=:png)
+	p_kaldor3_ces = plot!(1:T₂-1, (r_ss_ces)*ones(T₂-1), ls = :dash, lw=2, label = "BGP")
 
 	KS_ces = r_ces.*K_ces./Y_ces
 	KS_ss_ces = r_ss_ces*k_ss_ces/y_ss_ces
