@@ -40,7 +40,7 @@ RUN jupyter labextension install @jupyterhub/jupyter-server-proxy && \
     jupyter lab build && \
     jupyter lab clean && \
     pip install . --no-cache-dir && \
-    pip install matplotlib && \
+    #pip install matplotlib && \
     rm -rf ~/.cache
 
 USER root

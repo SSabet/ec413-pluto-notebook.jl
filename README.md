@@ -1,18 +1,19 @@
-# Pluto Notebooks
+# Notebooks for Advanced Macroeconomics
+This is a set of interactive [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebooks on topics discussed in beginning graduate level macroeconomics. It's built around the syllabus of the course Macroeconomics (EC413) taught at the LSE by Matthias Doepke and Silvana Tenreyro (2023-2024). But it also includes some more advanced discussions, or related stuff I find interesting. 
 
-A collection of interactive [Pluto.jl](https://github.com/fonsp/Pluto.jl) notebooks which introduce various statistics topics.
+The main aim is to make the transition from undergraduate to graduate Macroeconomics smoother, and to employ the fantastic [Pluto.jl](https://github.com/fonsp/Pluto.jl) and [PlutoUI.jl](https://github.com/fonsp/Pluto.jl) tools to make the models more intuitive.
+
+Below you can find the links to each notebook, dockerised on [Binder]().
 
 ### Notebooks
 
-[Beta](https://mybinder.org/v2/gh/roualdes/plutonotebooks/main?urlpath=pluto/open?path=/home/jovyan/notebooks/beta.jl)
+[Solow Model in Discrete Time](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Solow.jl)
 
-[Binomial](https://mybinder.org/v2/gh/roualdes/plutonotebooks/main?urlpath=pluto/open?path=/home/jovyan/notebooks/binomial.jl)
+[Neoclassical Growth Model](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Neoclassical_Growth.jl)
+
+[Malthusian Economy and Industrialisation](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Malthusian_Industrialisation.jl)
+
+[Contraction Mapping Theorem]()
 
 
-[Central Limit Theorem](https://mybinder.org/v2/gh/roualdes/plutonotebooks/main?urlpath=pluto/open?path=/home/jovyan/notebooks/clt.jl)
-
-
-[Joint, Marginal, Conditional Densities](https://mybinder.org/v2/gh/roualdes/plutonotebooks/main?urlpath=pluto/open?path=/home/jovyan/notebooks/jointmarginalconditionaldensities.jl)
-
-[Normal](https://mybinder.org/v2/gh/roualdes/plutonotebooks/main?urlpath=pluto/open?path=/home/jovyan/notebooks/normal.jl)
-
+### Acknowledgement
