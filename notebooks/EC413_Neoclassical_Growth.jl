@@ -16,126 +16,286 @@ end
 
 # ╔═╡ 58753ecf-c322-4fb6-bb80-4abfc7cb5459
 begin
-	using PlutoUI
-	using LaTeXStrings
 	using Plots
+	using LaTeXStrings
+	using PlutoUI
 	TableOfContents()
 end
 
 # ╔═╡ 1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
-md"# _Solow Growth Model in Discrete Time (EC413-AT-2023)_
+md"# _Neoclassical Growth Model (EC413-AT-2023)_
+## Ingredients
 
-## How to use this notebook
+Solow model was based on behavioural rules (in particular, constant s). Let's now transcend to proper equilibrium growth models which are typical in macroeconomics, based on
+- agents that optimise and interact via
+- markets that clear.
 
-This is an **interactive** _Julia_ notebook to let you play around with examples of Solow model that you have seen in the lecture and seminars.
-
-#### Basic usage
-
-- The good news is, you do not need to know _Julia_ (or any programming language) to make use of this notebook! For example, to see the effect of a change in parameters on the graphs or numerical results, simply use the sliders; changes will immediately take effect in the graphs and values (e.g., in the steady state level of capital per effective units of labour). If no slider is provided for the parameter you are interested in, you just need to change the parameter value at the point it is defined and then hit \"Shift+Enter\"
-
-#### Advanced usage
-
-- Feel free to edit this notebook as you wish! Change or delete the cells, values, functional forms etc., add new cells and experiment; break it and learn! **Don't worry, you won't be breaking the source code, this is your own copy!** If you ended up breaking your copy too much, you can always close the browser and reload it again.
-- In almost all cases, I make the cells (including either the markdown or th Julia code) invisible; If you're interested in reading, inspecting or even playing around with the code, hover your mouse to the left of a cell, there is an ``eye'' icon you can click on for the code to become visible; click it once more to make it invisible again.
-- If you are interested in editing the code and you don't know Julia (but you know Matlab or Python), there is a shortcut: you can use the [excellent cheatsheet](https://cheatsheets.quantecon.org/) here. If you know R but not Julia, you can use this [R-Julia comparison cheatsheet](https://github.com/sswatson/cheatsheets/blob/master/jpr-cheatsheet.pdf).
-- If you are going to inspect the code, notice that the Julia code in these notebooks are mainly for educational purposes, so it's not necessarily efficient or idiomatic. It's mostly written with the purpose that a wider range of the students (with different or even no programming background) can more easily understand the code.
-
-Any questions, suggestions or issues? Don't hesitate to get in touch!
-
-**Have fun!**
+This notebook presents a model with where s is determined endogeneously, as outcome of a *representative household* consumption-saving decision.
 "
 
-# ╔═╡ 0fee2ca0-7f57-4647-a187-36a9b3130cad
+# ╔═╡ 81ff5860-42bc-4372-9362-48dbf3941f86
 md"""
-## The Baseline Model
-Let's start by the Solow growth model. A Key building block of the Solow model is the aggregate production function, so first we define that. You can change it to experiment with other functional forms if you wish (again, press Shift+Enter for changes to take effect.)
-"""
+### (Representative) Firm's Problem
 
-# ╔═╡ f8f03434-6a0a-4c91-a084-7f86a13eaf93
-md"""
-#### Aggregate Production Function
+The firm maximises profit $\Pi_t$:
+
 $\begin{align*}
+\Pi_t &= \operatorname*{max}_{N_{t},K_{t}}\left\{Y_t-\left(\delta+r_{t}\right)K_{t}-w_{t}N_{t}\right\}\\
 Y_t&=  K_t^\alpha(A_t  N_t)^{1-\alpha}
 \end{align*}$
+
+
+- factor markets are competitive
+- r is the net interest rate paid by firm to households to rent capital; hence, the firm also pays for depreciation
+- firm's problem is static
+- Production function is CRS, competitive markets $\implies$ zero profit $\implies$ firm ownership does not matter
 """
 
-# ╔═╡ b2781e68-cc92-4186-a596-be753c52913e
-F(A,K,N,α) = K^α*(A*N)^(1-α)
-
-# ╔═╡ 3ff3caf6-a1e3-4298-ac99-2ff430443dc7
+# ╔═╡ 1babcf34-be7b-47e3-8f55-553dc4dcdae9
 md"""
-#### Laws of Motion
+### (Representative) Household's Problem
+
+$\max_{\{{{\cal{C}}_{t},{{{K}}_{t+1}}\}}_{t=0}^{\infty}}\left\{\sum_{t=0}^{\infty}\beta^{t}\,{U}(C_{t})\right\}$
+subject to
+
+$C_{t}+K_{t+1}=(1+r_{t})K_{t}+w_{t}N_{t}.$
+
+- Utility $U(C_t)$ is increasing, strictly concave, and satisfies Inada conditions.
+- you can think of it as a dynastic model: e.g., first period is your consumption, 2nd period is your children's, etc.
+- Also we need $K_{t+1}\geq 0$ or alternatively, no-Ponzi condition to prevent rolling over of debt forever:
+$\operatorname*{lim}_{t\rightarrow\infty}\beta^{t}U^{\prime}(C_{t}){K_{t+1}}\ge0.$
+"""
+
+# ╔═╡ 0aac9082-95b2-491d-b390-e3ca5a319ca6
+md"""
+### Competitive Equilibrium
+
+A system of **allocations** $\{C_{t},\,{N}_{t},\,K_{t+1}\}_{t=0}^{\infty}$ and **prices** $\{r_{t},\,w_{t}\}_{t=0}^{\infty}$ s.t.
+- taking prices as given, allocations solve the **optimisation** problems of households and firms
+- allocations are **feasible** $\quad C_{t}+K_{t+1}=({\bf1}-\delta)K_{t}+K_{t}^{\alpha}\quad\forall t.$
+"""
+
+# ╔═╡ d75e4ae5-85b2-401c-9529-fbdbff2f0e96
+md"""
+## Characterizing the Equilibrium
+
+Firm problem gives us the relation between prices and marginal products
+
+$\begin{align}
+r_{t}\ &=\,\alpha\,\left(\frac{A_{t}N_{t}}{K_{t}}\right)^{1-\alpha}-\delta\\ 
+w_{t}\ &=\,\left(1-\alpha\right)A_{t}^{1-\alpha}\left(\frac{K_{t}}{N_{t}}\right)^{\alpha} = (1-\alpha) A_t \left(\frac{K_t}{A_t N_t} \right)^\alpha
+\end{align}$
+- Clearly both prices are only a function of $\frac{K_t}{A_t N_t},$ capital per effective unit of labour. Keep that in mind when we get to detrending the model in a bit!
+
+On the other hand, the household problem gives us the consumption Euler equation which allows pinning down the (endogenised) saving decision
+"""
+
+# ╔═╡ 88df0889-e52c-4c69-871c-c1bf0a29082d
+md"""
+### The Consumption Euler Equation
+
+${\frac{U^{\prime}(C_{t})}{\beta U^{\prime}(C_{t+1})}}=1+r_{t+1}.$
+- Marginal rate of substitution = relative prices; here the two goods are consumption today vs. consumption tomorrow
+- the Euler equation (EE) pins down the consumption-saving decision of household (taking the interest rate as given). From another perspective, the interest rate adjusts to satisfies the household's optimal decision, while letting the markets clear.
+"""
+
+# ╔═╡ 5dfb78d4-9347-4977-8af8-11c6792be42f
+md"""
+#### Why Power Utility?
+Taking this consumption Euler Equation as given, two growth facts imply that the utility function should be a power function
+- return on capital $r_t$ is roughly constant
+- Consumption grows at a constant rate in the long run
+
+Hence, ratio of marginal utilities is independent of level of consumption. Power utility is the only function that satisfies these conditions:
+
+$U(C) = \frac{C^{1-\gamma}}{1-\gamma}$
+where $\gamma$ is the coefficient of relative risk aversion.
+"""
+
+# ╔═╡ 72eccfbd-a898-4979-aef0-111166f80e2f
+U = function(C, γ)
+	if Float64(γ)==1. 
+		return log(C)
+	else
+		return C^(1-γ)/(1-γ)
+	end
+end
+
+# ╔═╡ 1e234975-ddad-49f4-a809-24e27f374e46
+md"""
+## Equilibrium and Welfare
+*What are the welfare properties of equilibrium allocations?*
+
+**The First Welfare Theorem**
+*If preferences are locally non-satiated, a competitive equilibrium allocation is socially optimal (solves a social planning problem for some welfare weights).*
+- Key (implicit) assumptions: complete markets, no externalities
+- Also important: Finite number of people/types of people. Theorem does not hold in
+overlapping generations, for example.
+
+**The Second Welfare Theorem**
+Under a longer list of conditions (convex consumption sets, a form of concavity of
+preferences, continuity of utility functions, and additional assumptions on production
+possibilities):
+
+*Then, if an allocation is a social optimum, there exists a price system such that the two together form a competitive equilibrium.*
+- With representative agent, there often is a unique optimum, and hence the First Welfare Theorem implies the Second.
+
+**Note**: In practical terms, this implies that for more complicated problems, we might be able to solve the simpler social planner problem to find the optimal allocations.
+"""
+
+# ╔═╡ 16d4ba04-6451-4600-a53c-8261495a4a43
+md"""
+## Recursive Formulation of the Neoclassical Growth Model
+
+Take the representative household and representative firm problem as defined above, so the utility function is CRRA with relative risk aversion parameter $\gamma$ and the production function is Cobb-Douglas with capital share parameter $\alpha$. Suppose, as in the case of the Solow model, that the labour-augmenting technology $A_t$ and labour force $N_t$ grow with the exogenous laws of motion:
+
 $\begin{align*}
-K_{t+1}&=(1-\delta)K_t+s Y_t\\
 N_{t+1}&=(1+n) N_t\\
 A_{t+1}&= (1+g) A_t
 \end{align*}$
-"""
 
-# ╔═╡ 9e596114-e8ef-40ca-aeca-12d02bc49f21
-md"""
-## BGP and the Steady State
-### Transforming the Model and 
-Letting $k_t=\frac{K_t}{A_t N_t}$ denote capital per effective unit of labour and combining the transformed law of motion of capital with the production function we get
 
-$k_{t+1}=\frac{1}{(1+g)(1+n)}\left[(1-\delta)k_t +s  (k_t)^\alpha \right].$
+### The Bellman Equation for the Original Problem
 
-Similarly, we can define output per effective unit of labour $y_t=\frac{Y_t}{A_t N_t}$, which is simply a function of $k_t$, $y_t = k_t^\alpha$.
-
-**Q: why dividing by AN?**
-- mathematics: to get a system which has a steady state (also dimension reduction)
-- economics: Uzawa theorem
-"""
-
-# ╔═╡ f70f5669-04bf-495a-8adc-8bc7afab6e2e
-md"""
-### *The Uzawa Theorem (Optional)*
-Assuming that
-- aggregate production function $Y = F(K,N,A)$ is CRS (in $K, N$)
-- Labour (population) $N$ grows with constant rate
-- Resource constraint has the form $K_{t+1} = (1-\delta)K_t + Y_t - C_t$
-then along a growth path where $Y$, $C$ and $K$ grow with *constant* positive rates,
-1. we have $C$, $Y$ and $K$ growing with the **same** rate
-2. technological progress can be represented in **purely labour augmenting form**
-
-**Intuition** (and sketch of proof):
-- *Asymmetry b/w K and N:* $K$ (but not $N$) accumulates using units of output $Y$; so $K$ *inherits* any growth in $Y$, grows with the same rate as $Y$, and $\frac{K_t}{Y_t}$ remains constant
-- CRS implies $1=F(\frac{K_t}{Y_t}, \frac{N_t}{Y_t}, A_t)$ (balance production function),
-- If $Y$ and $N$ grow with same rates $\frac{N}{Y}$ also remains constant, no technological progress
-- but if $\frac{Y}{N}$ increases (as data shows), we need a compensating force for $N_t$ to keep up growing with $Y_t$ for the balance production function to be satisfied $\forall t$, i.e., purely labour-augmenting technological progress
-
-Notes:
-- This implies we can have non-Cobb-Douglas production functions giving us a BGP, provided that technological progress is solely labour-augmenting
-- But in general and looking at the real world examples, no reason why all progress should be labor augmenting; in fact, many key innovations (steam engine; electricity; tractors; computers) are embodied in capital.
-- That's why we might prefer to proceed with Cobb-Douglas that, thanks to having an elasticity of substitution between labour and capital equal to 1, is not only consistent with the stable factor shares but allows us to be agnostic about direction of technical change
-"""
-
-# ╔═╡ 66af3def-e62a-485a-ad93-901c3e920a96
-md"""
-### Parameters
-Before going forward and to get a better sense of dynamics of the model and be able to do plotting and numerical experimentation, we need to parameterise the model. Let's start by the following:
+Then, the recursive formulation will be as follows:
 
 $\begin{align*}
-n &= 0\\
+v(K; A, N) = &\max_{C,K'} \left\{ U(C) + \beta v(K') \right\} \\
+s.t. \qquad\qquad & \\
+& K'+C = (1-\delta) + Y(K, AN)\\
+&A' = (1+g) A\\
+&N' = (1+n) N
+\end{align*}$
+
+- Note: the optimal allocations can be found by solving this Bellman equation which you can arrive at either using the social planner's problem or via the decentralised equilibrium (by replacing for prices which we found in the FOC's of the firm problem)
+
+### The Bellman Equation for the Detrended Problem
+
+The issue is, this Bellman equation has three state variables and two controls. Also, C, K, K' are growing overtime which means there is no steady state. So as with the Solow model, we attempt to transform this growth system, to take the trend out of it. Unsurprisingly, a proper normalisation would be to write all variables in terms of the effective units of labour.
+
+Having done this we get:
+
+$v(k) = \max_{k'} \frac{\left[ (1-\delta)k + k^\alpha - (1+g)(1+n)k' \right]^{1-\gamma}}{1-\gamma} + \tilde{\beta} v(k')$
+where
+
+$\tilde{\beta} = \beta \left[(1+g)(1+n) \right]^{1-\gamma}$
+is the transofrmed discount factor (still < 1).
+
+"""
+
+# ╔═╡ 5610cdad-6cdf-4409-9b1b-db3e57788883
+md"""
+### Parameters
+
+Before going forward to solve the Bellman equation and study the comparative statics and dynamics of the model, it's useful to give some numbers to parameters. Let's start by the following (exactly the same as the default parameters we used in the Solow notebook, with the exception that here we have two additional parameters for household preferences ($\beta, \gamma$)):
+
+$\begin{align*}
+n &= 0.0\\
 g &= 0.02\\
 \delta &= 0.1\\
 \alpha &= 0.3\\
-s &= 0.15
+\beta &= 0.96\\
+\gamma &= 2
 \end{align*}$
-
-- Note that in terms of data, s is between 10-25%, 
 """
 
-# ╔═╡ 5669a9d4-c7cc-4426-a77d-33e23bc12175
+# ╔═╡ d6892a8d-0f30-4ebd-acb2-0fb3c117b585
+md"""
+## Solving the Neoclassical Growth Model
+### Analytical Solution (by Guess and Verify)
+You practiced this in your assignments.
+
+### *Intro to Numerical Solutions: Value Function Iteration (Optional)*
+
+#### Steps 
+##### 1.Building the grid for the state variable
+We need to choose a higher end, a lower end and the layout (e.g., equi-spaced or nonlinear); as regarding the layout, here we go with the simple case of equi-distance. 
+
+What about the lower and higher ends $[\underline{k}, \bar{k}]$? What is crucial is that starting with any point in the grid, we should make sure that the next period state (which might be a control as in this problem: $k'$) again falls within the grid. More precisely, we should make sure that someone who starts from the lower end level of capital $\underline{k}$, would optimally choose a $k'$ higher than $k$, and someone starting from $\bar{k}$ would optimally choose to a lower $k'$.
+
+In our case it's easy to make sure we have a proper grid? The thing is we can compute the steady state of the transformed model analytically:
+
+$k_{ss} = \left( \frac{\alpha \tilde{\beta}}{(1+n)(1+g)- \tilde{\beta}(1-\delta)} \right)^{\frac{1}{1-\alpha}}$
+
+From this we also can compute the steady state level of consumption (per effective units of labour): $c_{ss} = k_{ss}^\alpha - (g+n+gn+\delta)k_{ss}$.
+
+With the chosen parameters, the steady state level of capital per effective units of labour would be equal to
+"""
+
+# ╔═╡ 84998928-b0e4-46b8-b9b6-39bbc46cf625
+md"""
+Hence we can choose the grid so that the lower end is below this, the higher end is above. That (plus the stability of the equilibrium) would ensure that the grid is proper. Here let's choose the grid limits a bit wider: 
+
+$k_{grid} = [0.0001, 4]$
+We can choose how many grid points to put on this; I go with 100, but feel free to adjust it if you want (varable **`grid_size`**). 
+
+##### 2.Initial guess
+
+##### 3.Going from one guess to the next
+
+##### 4.Until? Convergence ...
+
+"""
+
+# ╔═╡ 08e4679f-2c6f-4062-94cf-706e26eff8d8
+function VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
+	β_tilde = β*(1+g+n+g*n)^(1-γ) #detrended discount rate
+
+	tol = 10.0^(-accuracy_degree)
+	
+	k = range(1e-4,4, length=grid_size) # define a discrete grid for the state variable
+	
+	v = U.(k, γ) # initial guess
+	v_next = similar(v) # next (improved) guess
+	k_next = similar(k) # capital next period (policy function)
+	k_next_index = similar(k) # index of capital next period on the same grid
+	
+	distance = ones(maxit)
+	last_distance = Inf
+	iter = 1 # iteration counter
+
+	value_matrix = -Inf*ones(grid_size, grid_size) #given some guess for the value function, entry (k,k') of this matrix gives the value for the agent with state k if she chooses k' as her next period capital (control)
+	
+	while ((last_distance > tol) & (iter<=maxit))
+		value_matrix = -Inf*ones(grid_size, grid_size)
+		for j=1:grid_size
+			k_j = k[j]
+			i_min = findfirst(i -> (((1-δ)*k[i])+k[i]^α - (1+g+n+g*n)*k_j > 0), 1:grid_size)
+			
+			if i_min!=nothing
+				value_matrix[i_min:grid_size,j] = U.((1-δ).*k[i_min:grid_size].+k[i_min:grid_size].^α .- (1+g+n+g*n)*k_j, γ).+ β_tilde*v[j]		
+			end
+		end
+		v_next = reshape(maximum(value_matrix, dims=2),size(v))
+				
+		distance[iter] = maximum(abs.(v-v_next))
+		last_distance = distance[iter]
+		iter+=1		
+		v = v_next
+	end
+
+	k_next_index = reshape(argmax(value_matrix, dims=2),size(v))
+	for grid_point=1:grid_size
+		k_next[grid_point] = k[k_next_index[grid_point][2]]
+	end
+	
+	println("Value function converged at iteration $(iter) with distance $(round(last_distance;digits=accuracy_degree+1)).")
+		
+	return (v, k, k_next, iter, distance)
+end
+
+# ╔═╡ 1dcada9d-b0f6-461b-bafd-a18a95063787
 begin
+	grid_slider = @bind grid_size Slider(100:100:1000, default=100, show_value = true)
 	n_slider = @bind n Slider(0:0.01:.1, default=0, show_value = true)
 	g_slider = @bind g Slider(0:0.02:.2, default=.02, show_value = true)
 	δ_slider = @bind δ Slider(0:0.05:1, default=.1, show_value = true)
 	α_slider = @bind α Slider(0:0.05:1, default=.3, show_value = true)
-	s_slider = @bind s Slider(0:0.05:1, default=.15, show_value = true)
+	β_slider = @bind β Slider(0:0.04:1, default=.96, show_value = true)
+	γ_slider = @bind γ Slider(0:0.5:5, default=2, show_value = true)
 	
 	md"""
-	Let's start with these parameters. You can use the sliders to change them and see the effects:
+	You can use the sliders to change them and see the effects:
 	
 	n: $(n_slider)
 	
@@ -144,524 +304,65 @@ begin
 	δ: $(δ_slider)
 	
 	α: $(α_slider)
+
+	β: $(β_slider)
+
+	γ: $(γ_slider)
+
 	
-	s: $(s_slider)
+	-------
+	
+	Grid Size: $(grid_slider)
 	"""
 end
 
-# ╔═╡ cc25bdab-c8df-4640-ae4f-d58ba44fc263
-md"""
-### Finding the Steady State of the Transformed Model (analytically)
-Steady state corresponds to $k_t$ not changing over time, i.e., $k_{t+1}=k_t = \bar{k}$; equation above implies:
-
-$(g+n+gn+\delta)\bar{k} = s \bar{k}^\alpha$
-$\bar{k}=\left(\frac{s}{g+n+gn+\delta}\right)^\frac{1}{1-\alpha}.$
-"""
-
-# ╔═╡ 29ee6c36-bcfb-40bc-bddf-7f8ba3d47c50
+# ╔═╡ c7d6e3e7-7962-4edf-9190-69c257fe1dd7
 begin
-	# finding the steady state value of ̄k in the transformed model
-	k_ss = (s/(g+n+g*n+δ))^(1/(1-α))
-	#println(k_ss)
-	println("The steady state level of capital per effective units of labour is $(round(k_ss; digits=5))")
+	β_tilde = β*(1+g+n+g*n)^(1-γ)
+
+	accuracy_degree = 10
+	 #tolerance for convergence
+	maxit = 1000 #maximum number of iterations on value function (to avoid an infinite loop)
+	
+	#grid_size = 100 # size of the grid
+	v, k, k_next, iter, distance = VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
+	c = (1-δ).*k + k.^α - (1+g)*(1+n).*k_next
+	savings = 1 .- (c./( k.^α))
 end
 
-# ╔═╡ be361a68-cf13-4493-a810-f327c5f97f2c
-md"""
-### Finding the Steady State of the Transformed Model (visually)
-There are at least two ways to inspect the steady state of this model using graphs.
-1. As the intersection of the gross saving $sk^α$ and the depreciation line $(g+n+gn+\delta){k}$
-2. As the intersection of $k_{t+1}$ (see it's law of motion above), and the 45ᵒ line.
-"""
-
-# ╔═╡ 3c9adefb-048c-4584-9ba8-b4ac22fdcd32
+# ╔═╡ 05e15b48-0872-484b-89b4-cfbd8ae842ef
 begin
-	ks = 0:k_ss/32:k_ss*2
-	save = k -> s*k^α
- 	deprec= (n + g +n*g+δ)*ks
-	plot(ks, save.(ks), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = "Saving , Depreciation",fmt=:png)
-	plot!(ks, deprec, label = "Depreciation", ls=:dash, lw = 2)
-	p_sav = plot!([k_ss], [save(k_ss)], seriestype = :scatter, label="Steady State")
-	
-	η = (1+g)*(1+n)
-	ks_next = ((1-δ)*ks + save.(ks))/η
-	plot(ks, ks_next, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$",fmt=:png)
-	p_next = plot!(ks, ks, label = "45ᵒ line", ls=:dash, lw = 2)
-	p_next = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State")
+	k_ss = (α*β_tilde/(1+g+n+g*n-β_tilde*(1-δ)))^(1/(1-α))
+	c_ss = k_ss^α - (g+n+g*n+δ)*k_ss
 
-	plot(p_sav,p_next, layout=(1,2))
+	k_golden = (α/(g+n+g*n+δ))^(1/(1-α))
+	c_golden = (1-α)*(α/(g+n+g*n+δ))^(α/(1-α))
+	println("The steady state k is $(round(k_ss; digits=5)), and  the steady state consumption is $(round(c_ss; digits=5)).")
 end
 
-# ╔═╡ 53cc927f-02ec-4403-a3dc-6ea3791359b6
-md"""
-### Moments of Interest on the BGP
-Now that we have found $k_t$ in the steady state, we can compute other moments of interest (which are a function of $k_t$ and parameters), evaluate them at the steady state of the transformed model, and go from that to the BGP of the original model.
-
-- **Income per effective unit of labour:** $y_t = k_t^\alpha$; at the steady state/BGP: $\bar{y} = \bar{k}^\alpha$
-- **Income per capita:** $\frac{Y_t}{N_t} = A_t y_t$; at the steady state/BGP, $\frac{Y_t}{N_t} = A_t \bar{y}$
-- **Capital-output ratio:** $\frac{K_t}{Y_t} = \frac{k_t}{y_t} = k_t^{1-\alpha}$; at the steady state/BGP: $= \bar{k}^{1-\alpha}$
-- **Rate of return to capital:** is equal to the marginal product of capital: $r_t = \frac{d Y_t}{d K_t} = \alpha k_t^{\alpha-1}$; at the steady state/BGP: $\bar{r} = \alpha \bar{k}^{\alpha-1}$
-- **Capital Share:** $\frac{r_t K_t}{Y_t} = \alpha$ both at the transition path, and at the steady state/BGP
-- **Labour share:** Similarly, $\frac{w_t N_t}{Y_t} = 1-\alpha$
-"""
-
-# ╔═╡ 66dbeb2a-32be-499a-a1d4-20c2647b8913
-md"""
-## Transition Path
-Steady state is a point where if you start from, you will stay there forever. But what if you do not start from the steady state? I.e., what if a country starts from some initial level of capital $K_1$, productivity $A_1$, and population $N_1$ such that $k_1 = \frac{K_1}{A_1 N_1} \neq \bar{k}$?
-
-Let's do a numerical exercise. Inspired by Assigment 2, let's consider an econmy, say England, which starts at period 1, with a low level of capital. Let's assume it starts with a level of capital per effective units of labour which is 1/1000 of it's steady state value.
-"""
-
-# ╔═╡ 2a5dd85f-8b53-4330-be69-3bee6b731caa
-begin
-	A₁ = 1;
-	N₁ = 1;
-	K₁ = A₁*N₁*(k_ss/1000)
-	nothing
-end
-
-# ╔═╡ 76488fa6-2c94-4dbc-9c06-5bc4eaf6f3c6
-md"""
-What happens to the economy over time? Let's focus on the key variable of the (transformed) model, $k_t$, and follow its evolution for a horizon of 50. To this end, we first compute the output in the first period using the aggregate production function defined above:
-"""
-
-# ╔═╡ 3e2db772-2806-4470-b308-b6a8cd271e46
-begin
-	T = 50
-	Y₁ = F(A₁, K₁, N₁, α)
-	nothing
-end
-
-# ╔═╡ e417f1b3-fa3b-4736-80ef-d733fca46af8
-md"""
-Now we start from the initial values of A, K and N and use the laws of motion to compute future values of these. Moreover we can use the aggregate production function to compute the output in each period.
-
-Here is a function to do this. You can ignore it unless you want to peek into the sausage factory!
-"""
-
-# ╔═╡ 97f40165-4cc3-4705-b19b-a73b5f10ff6d
-function trajectories(A₁, K₁, N₁, α, g, n, δ, s, T)
-#begin
-	A = ones(T); A[1] = A₁ # defining a vector for productivities; initialising it with A₁
-	N = ones(T); N[1] = N₁ # defining a vector for population; initialising it with N₁
-	K = ones(T); K[1] = K₁ # defining a vector for capital; initialising it with K₁
-
-	Y = ones(T); Y[1] = F(A₁, K₁, N₁, α) # defining a vector for output; initialising it with Y₁
-	
-	# now compute future values of variables of interest (A,N,K) according to their laws of motion
-	for t ∈ 2:T
-		A[t] = (1+g)*A[t-1]
-		N[t] = (1+n)*N[t-1]
-		K[t] = (1-δ)*K[t-1] + s*Y[t-1]
-		Y[t] = F(A[t], K[t], N[t], α)
-	end
-	(A, K, N, Y)
-end
-
-# ╔═╡ c31be4ed-5d4d-4d9b-bd86-94c6020a3712
-md"""
-Now we can compute the full evolution of the economy (trajectories of Y, A, K and N, from period 1 to the last period) using the function defined above, and make use of it to further compute evolution of $k:$ 
-"""
-
-# ╔═╡ 02d9cee7-9ca7-48cf-8663-f7fbc23ebc00
-md"""
-What if we start from a higher level of capital? Although this is an empirically less relevant situation, let's say the initial level of capital is 10 times that of the steady state.
-"""
-
-# ╔═╡ 5d8e400e-9d1c-447c-8d4a-245d4f2a0fec
-md"""
-The graphs suggest that in both cases, $k_t$ converges back to its steady state value $\bar{k}$. This raises three questions:
-1. is it a general property of the Solow model described above?
-2. If yes, what is the reason?
-3. And how fast such convergence happens. I.e., how each parameter of the model affects the speed at which convergence occurs?
-"""
-
-# ╔═╡ b4c56d87-3b1c-4a06-974b-87f733bc8018
-md"""
-## Convergence and Stability
-### Convergence in the Solow Model
-It is more straightforward to discuss convergence in terms of the transformed (rather than original) Solow model. Remember that the transformed Solow model is in effect a one-dimensional dynamical with a steady state. The criterion for having convergence in such a model is:
-
-**If you start from the left of the steady state, you move to the right; if you start from the right, you move to the left.**
-"""
-
-# ╔═╡ 04a3af31-73a1-4de0-9f65-6ab2e4721447
-md"""
-To verify that this property holds for the Solow model, you can proceed either analytically or visually. For the former, one can compute $\Delta k_{t+1}$ and verify whether it is positive for $k_t < \bar{k}$ and negative for $k_t > \bar{k}$.
-
-For the visual inspection, there are at least three ways to proceed, depicted in the graphs below:
-"""
-
-# ╔═╡ 9f6b6938-c148-48d3-ba78-39d6abd85403
-begin
-	ks_2 = 0:(k_ss/32):(k_ss*2)
-	#save = k -> s*k^α
- 	deprec_2= (n + g +n*g+δ)*ks_2
-	plot(ks_2, save.(ks_2), label = "(gross) Saving", lw = 2, xlabel = L"$k$", ylabel = "Saving, Depreciation", aspect_ratio = :none,fmt=:png)
-	plot!(ks_2, deprec_2, label = "Depreciation", ls=:dash, lw = 2)
-	p_sav_2 = plot!([k_ss], [save(k_ss)], seriestype = :scatter, label="Steady State")
-	
-	#η = (1+g)*(1+n)
-	ks_next_2 = ((1-δ)*ks_2 + save.(ks_2))/η
-	Δks = ks_next_2-ks_2
-	plot(ks_2, ks_next_2, label = L"$k_{t+1}$", lw = 2, xlabel = L"$k_t$", ylabel = L"$k_{t+1}$",fmt=:png)
-	p_next_2 = plot!(ks_2, ks_2, label = "45ᵒ line", ls=:dash, lw = 2)
-	p_next_2 = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State", aspect_ratio = :none)
-
-	
-	plot(ks_2, Δks, lw = 2, xlabel = L"$k_t$", ylabel = L"$\Delta k_{t+1}$", label = L"$\Delta k_{t+1}$",fmt=:png)
-	plot!(ks_2,zeros(length(ks_2)), label = "zero", ls=:dash, lw = 2)
-	p_dk = plot!([k_ss], [0], seriestype = :scatter, label="Steady State", aspect_ratio = :none)
-	
-	mpks = α*ks_2.^(α-1)
-	p_mpk=plot(ks_2, mpks, lw = 2, xlabel = L"$k_t$", ylabel = L"\frac{dY}{dK}", label = L"MPK",fmt=:png)
-	
-	plot(p_sav_2,p_next_2, p_dk, p_mpk, layout=(2,2))
-end
-
-# ╔═╡ 30332b4c-1efb-4236-8284-076a36686164
-md"""
-1. Graph on the top-left: If we are to the left of the steady state (low capital), saving would be higher than depreciation, so capital (per effective units of labour) will increase and we will move to the right; vice versa if we start from a higher level of capital. $\implies$ convergence
-2. Graph on the top-right: if we start from the left of the steady state, next period capital per effective units of labour ($k_{t+1}$) is higher than the 45ᵒ line, which means $k_{t+1} > k_t$; so again we move to the right; and vice versa if we start from the right of the steady state. $\implies$ convergence
-3. Graph on the bottom-left: If we start from the left of the steady state, $\Delta k_{t+1} = k_{t+1} - k_t > 0$, which amounts to the same thing, meaning we will move to the right and vice versa, $\implies$ convergence
-
-Note: convergence and stability are very similar concepts which slightly differ in the usage: stability is usually with reference to the steady state, while convergence is with reference to an initial point which is usually distinct from the steady state.
-"""
-
-# ╔═╡ 1937d530-b4d6-4dfb-8436-4d6b02062709
-md"""
-### Diminishing Marginal Product of Capital
-
-Finally, the graph on the bottom-right of the figure above shows how the marginal product of capital (MPK) changes with $k$. Note that this is the key driver of convergence in the Solow model. Higher levels of capital means lower return to capital and vice versa. This is important when you want to use the Solow model to think about transition, (conditional) convergence or episodes of rapid growth in the postwar economies (Japan, Germany, South Korea, etc.)
-"""
-
-# ╔═╡ e4e7a385-d0f8-4648-a097-0c3b74c46e0c
-md"""
-### Speed of Convergence
-Now that we showed the Solow model have the desired convergence property, we can proceed to the next question regarding the speed of convergence. There are several ways to quantify how fast the convergence occurs. Given our discrete time formulation, one way is to define the speed of convergence at period t, as the relative decline, in the relative gap between capital per effective unit of labour $k_t$ and the steady state $\bar{k}$ between periods $t$ and $(t+1)$:
-
-$\frac{\frac{\bar{k} - k_t}{\bar{k}}- \frac{\bar{k} - k_{t+1}}{\bar{k}}}{\frac{\bar{k} - k_{t}}{\bar{k}}} = \frac{k_{t+1} - k_t}{{\bar{k}}-k_{t}}$
-
-For example, in question 1 of Assignment 2 (where the steady state is modeled as another country, Scotland), there is a question about the speed of convergence for England in period one. In particular, assuming that England starts from a capital per effective unit of labour which is half that of the Scotland (the steady state), the speed of convergence between periods 1 and 2 will be equal to:
-
-$\frac{\frac{1}{2}- \frac{k_{2,\text{Scotland}}-k_{2,\text{England}}}{k_{2,\text{Scotland}}}}{\frac{1}{2}}=1-2 \frac{k_{2,\text{Scotland}}-k_{2,\text{England}}}{k_{2,\text{Scotland}}}$
-"""
-
-# ╔═╡ 56f6341b-47df-4c86-b503-2999feb34ddc
-begin
-	n2_slider = @bind n2 Slider(0:0.01:.1, default=0, show_value = true)
-	g2_slider = @bind g2 Slider(0:0.02:.2, default=.02, show_value = true)
-	δ2_slider = @bind δ2 Slider(0:0.05:1, default=.1, show_value = true)
-	α2_slider = @bind α2 Slider(0:0.05:1, default=.3, show_value = true)
-	#s2_slider = @bind s2 Slider(0:0.05:1, default=.15, show_value = true)
-	
-	md"""
-	**Speed of convergence between periods 1 and 2**
-	
-	n₂: $(n2_slider)
-	
-	g₂: $(g2_slider)
-	
-	δ₂: $(δ2_slider)
-	
-	α₂: $(α2_slider)
-		
-	"""
-end
-
-# ╔═╡ a7beeea9-44a9-432b-b41c-32c67ba92afd
-md"""
-## The Kaldor Facts and the Solow Growth Model
-### Facts of Growth
-1. Near-constant growth in income per capita.
-2. Capital-output ratio is nearly constant.
-3. Return to capital is nearly constant.
-4. Capital and labor share are nearly constant.
-
-Note: These are facts of growth for developed/advanced economies.
-Also note:
-- Fact 1: note that income per capita grows with constant rate g in the BGP of the model; so growth in labour-augmenting productivity is the sole driver of growth in living standards in the baseline Solow model
-- Fact 3: with competitive markets return to capital = MPK
-"""
-
-# ╔═╡ 6932442c-a3dd-4dfb-b5ed-1bc14ec39c7b
-md"""
-### The Solow Model and Facts of Growth
-**Can the Solow model rationalise the facts of growth?**
-Let's look at the moments of interest in the Solow model both along the transition path and the BGP?steady state:
-
-| moment | Transition | BGP|
-|:-------|:-----------|:---|
-|growth rate of income per capita| $(1+g)\frac{k_{t+1}}{k_t}$| $1+g$|
-|capital-output ratio | $k_t^{1-\alpha}$ | $\bar{k}^{1-\alpha}$|
-|return to capital| $r_t = \alpha k_t^{\alpha-1}$| $\bar{r} = \alpha \bar{k}^{\alpha-1}$|
-|labor share| $1-\alpha$|$1-\alpha$|
-|capital share|$\alpha$|$\alpha$|
-
-"""
-
-# ╔═╡ 77287e52-6e9f-4228-8542-49fdffa9833f
-md"""
-- Apparently, facts of economic growth hold for the BGP of the model but not on the transition path (except for constancy of labour shares)
-- This is consistent with the data: K/Y fluctuates quite a bit, but capital and labour share remain roughly constant
-"""
-
-# ╔═╡ 4ccdc633-e8eb-44bf-9d9f-95226b795ae3
-md"""
-
-
-### Why a Cobb-Douglas Production Function?
-Why is the Aggregate Production Function Cobb-Douglas?
-
-- This comes from Kaldor fact 4 (constant (non-degenerate) factor income shares), which calls for a unitary elasticity of substitution
-- so 1% increase in interest rate relative to wages implies 1% decrease in capital-labour ratio, hence labour and capital share remain constant.
-
-
-
-"""
-
-# ╔═╡ 7fff17c8-b267-4d6f-b191-082ac3ac1a49
-md"""
-### Plotting Facts of Growth in the Solow Model
-
-Again consider the economy we introduced above, which starts from a level of capital which is 1/1000 of the steady state. Let's plot the moments of interest regarding the growth facts.
-
-The graph on the top left shows how the growth rate of income per capita approaches a constant ($g$) over time. The top-right graph shows the evolution of capital-output ratio; bottom-left the rate of return to capital, and bottom-right the share of capital from ourput.
-"""
-
-# ╔═╡ 5ccb172d-c2ee-4b94-b9d3-3b44b059dd1a
-md"""
-## The Golden Rule Consumption
-*What is the highest consumption level that can be sustained in the Solow model?*
-
-Note that the steady state income per effective units of labour is
-
-$\bar{y}=\left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-So on the BGP, income per capita is:
-
-$\frac{Y_t}{N_t}=A_t \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-Saving rate is $s$, so consumption per capita is:
-
-$\frac{C_t}{N_t}=A_t (1-s) \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-What saving rate $s^*$ maximises this expression? The expression on the RHS is strictly concave in s if $\alpha<\frac{1+s}{2}$ (empirically reasonable). The FOC implies that $s^* = \alpha$. So the Golden rule saving rate is equal to $\alpha$. Hence, the Golden rule level of capita per effective labour is:
-
-${y^*}=\left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-Similarly the Golden rule consumption level of consumption per capita is:
-
-$\frac{C_t^*}{N_t}=A_t (1-\alpha) \left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-The following graph shows how consumption per effective labour at BGP changes as a function of s (Assume $A_t = 1$):
-"""
-
-# ╔═╡ a486a61e-eb4d-4ad8-b7a6-fa3d95eeb682
-begin
-	α1_slider = @bind α1 Slider(0:0.05:1, default=.3, show_value = true)
-	
-	md"""
-	**Golden-rule consumption as a function of α**
-	
-	α: $(α1_slider)
-	
-	"""
-end
-
-# ╔═╡ 0203b0b7-958a-42e3-a064-d601f165b5fc
-begin
-	grid_size = 100
-	ss = range(0,1,length = grid_size)
-	cs = zeros(grid_size)
-	for i in eachindex(ss)
-		si = ss[i]
-		cs[i] = (1-si)*(si/(n+g+n*g+δ))^(α1/(1-α1))
-	end
-	
-	sgold = α1
-	c_golden = (1-sgold)*(sgold/(n+g+n*g+δ))^(α1/(1-α1))
-	
-	plot(ss, cs, xlabel = "s (saving rate)", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
-	#vline([c_golden])
-	plot!([α1], seriestype = :vline, linestyle=:dash, label = "")
-	plot!([α1],[c_golden], seriestype = :scatter, label="Golden-rule consumption")
-end
-
-# ╔═╡ 643c3a17-5536-4ed6-8faa-f5980ebd70e6
-md"""
-## Different Elasticities of Substitution (Between K, N)
-
-We saw that, in the baseline Solow model, factor shares remain constant even on transition. This comes from a key propert of Cobb-Douglas production function: **unitary elasticity of substitution** between capital and labour.
-
-What if we relax this assumption? The following production function generalises the Cobb-Douglas production function we have used thus far:
-
-$Y = F(K,N, A) = \left( \alpha K^\rho + (1-\alpha) (AN)^\rho \right)^{\frac{1}{\rho}}$
-
-With this production function, elasticity of substitution between K and N would be equal to
-
-$\sigma = \frac{1}{1-\rho}$
-That is, 1% increase in the the relative price of labour to capital ($\frac{w}{r}$) would translate to σ% increase in the capital labour ratio ($\frac{K}{N}$). Note that for $\rho=0$ (that is $\sigma=1$) we are back to the case of the Cobb-Douglas production function with capital elasticity $\alpha$ which we assumed at the start of the notebook. On the other hand, two extreme cases are:
-- Linear production function has an elasticity of substitution equal to infinity;
-- On the other hand, Leontieff production function (as in the Harrod-Domar model) has an elasticity of substitution equal to zero. Here, income share depends on which factor is abundant: if K abundant, then return to capital drops to zero, labour share becomes one; if (effective labour) is abundant, there would be mass unemployment, capital share is one.
-"""
-
-# ╔═╡ 1ec69369-e4a8-4e51-9925-bf502204350f
-function trajectories(A₁, K₁, N₁, α, g, n, δ, s, σ, T, PF)
-#begin
-	A = ones(T); A[1] = A₁ # defining a vector for productivities; initialising it with A₁
-	N = ones(T); N[1] = N₁ # defining a vector for population; initialising it with N₁
-	K = ones(T); K[1] = K₁ # defining a vector for capital; initialising it with K₁
-
-	Y = ones(T); Y[1] = PF(A₁, K₁, N₁, α, σ) # defining a vector for output; initialising it with Y₁
-	
-	# now compute future values of variables of interest (A,N,K) according to their laws of motion
-	for t ∈ 2:T
-		A[t] = (1+g)*A[t-1]
-		N[t] = (1+n)*N[t-1]
-		K[t] = (1-δ)*K[t-1] + s*Y[t-1]
-		Y[t] = PF(A[t], K[t], N[t], α, σ)
-	end
-	(A, K, N, Y)
-end
-
-# ╔═╡ 031e0b88-732d-4ce2-9cd6-018faff82e84
-begin
-	A, K, N, Y = trajectories(A₁, K₁, N₁,α, g, n, δ, s, T)
-	k = K./(A.*N)
-	nothing
-end
-
-# ╔═╡ 0d6af4bc-011f-457a-b4d0-60eda96aa460
+# ╔═╡ 638e99db-5acf-4ab1-9435-5802cf2ead2b
 begin	
-	plot(1:T, k, label = "k of England over time", lw = 2, xlabel = "time", ylabel = L"$k_t$",legend=:bottomright,fmt=:png)
-	plot!(1:T, k_ss*ones(T), label = "Steady State k", ls=:dash, lw = 2)
-end
-
-# ╔═╡ a279af3a-db5c-4f64-9036-a3679328896c
-begin
-	YN = Y./N
-	YN_gr = YN[2:end]./YN[1:end-1] .- 1
-	plot(1:T-1, YN_gr, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{Y_{t+1}/N_{t+1}}{Y_t/N_t}-1$", aspect_ratio = :none,fmt=:png)
-	p_kaldor1 = plot!(1:T-1, g*ones(T-1), ls = :dash, lw=2, label = L"BGP")
-
-	KY = K./Y
-	plot(1:T-1, KY[1:T-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none, legend=:bottomright, fmt=:png)
-	p_kaldor2 = plot!(1:T-1, (k_ss^(1-α))*ones(T-1), ls = :dash, lw=2, label = L"BGP")
-
-	r = α*k.^(α-1)
-	plot(1:T-1, r[1:T-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none,fmt=:png)
-	p_kaldor3 = plot!(1:T-1, (α*k_ss^(α-1))*ones(T-1), ls = :dash, lw=2, label = "BGP")
-
-	KS = r.*K./Y
-	plot(1:T-1, KS[1:T-1], label = "Capital Share over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{r_t K_t}{Y_t}$", aspect_ratio = :none, ylimits=(0,1),fmt=:png)
-	p_kaldor4 = plot!(1:T-1, α*ones(T-1), ls = :dash, lw=2, label = "Capital share (BGP)")
-
-	plot(p_kaldor1,p_kaldor2, p_kaldor3, p_kaldor4, layout=(2,2))
-end
-
-# ╔═╡ 17307ffa-4f1c-46e1-bb77-42c978464b91
-begin
-	K₁ₕ = A₁*N₁*(k_ss*10)
-	Aₕ, Kₕ, Nₕ, Yₕ = trajectories(A₁, K₁ₕ, N₁,α, g, n, δ, s, T)
-	kₕ = Kₕ./(Aₕ.*Nₕ)
-	begin	
-	plot(1:T, kₕ, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
-	plot!(1:T, k_ss*ones(T), label = L"Steady State $\bar{k}$", ls=:dash, lw = 2)
-	end
-end
-
-# ╔═╡ 900c31c6-12eb-4f4d-95c8-9aa4ec227beb
-begin
-	K₁ₑ = A₁*N₁*k_ss/2
-	Aₑ, Kₑ, Nₑ, Yₑ = trajectories(A₁, K₁ₑ, N₁,α2, g2, n2, δ2, s, T)
-	kₑ = Kₑ./(A.*N)
+	p_c = plot(k, c, label = "consumption", lw=2, xlabel=L"k", ylabel=L"c", legend=:bottomright)
+	p_next = plot!([k_ss], [c_ss], seriestype = :scatter, label="Steady State")
+	p_next = plot!(k, c_golden*ones(grid_size), seriestype = :line, label="Golden Rule c")
 	
-	speed_12 = (2^(1-α2)-1)*(1+(δ2-1)/((1+n2)*(1+g2)))
-	println("The speed of convergence is $(round(speed_12; digits=5))")
+	plot(k, k_next, label = "Next period capital", xlabel=L"k", ylabel=L"k'")
+	p_next = plot!(k, k, label = "45ᵒ line", ls=:dash, lw = 2)
+	p_next = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State")
+	
+	p_sav = plot(k, savings, label = "saving rate", lw=2, xlabel=L"k", ylabel=L"s")
+	#p_sav = plot!(k[2:end],zeros(grid_size-1), ls = :dash, label = "zero")
+	p_sav = plot!(k, α*ones(grid_size), seriestype = :line, label="Golden Rule s")
+
+	p_converge = plot((distance[1:iter-1]), xlabel= "Iteration n", ylabel=L"$\max\left(|v^n - v^{n-1}|\right)$", label = "Accuracy and Convergence", yaxis = :log, yticks=((0.000001, 0.001, 1, 100, 1000),(0.000001, 0.001, 1, 100, 1000)))
+
+	plot(p_c, p_next, p_sav, p_converge, layout = (2,2))
 end
 
-# ╔═╡ 3cdd278a-1cb6-4ab7-92fb-7798a7eab02f
+# ╔═╡ 12ef80a7-65ea-46ff-825b-6cd1d3e50bce
 md"""
-### Comparative Statics: Elasticity of Substitution
-#### Elasticity of Substitution and Facts of Growth
-
-Let's start again from a very low level of capital, 1/1000 of the steady state, and use the same parameters as before (except for the elasticity of substitution which you can change).
-
-Now you can play around with the σ parameter and observe how moments of interest change both along the transition path and the BGP. In particular focus on how things change when you increase σ above one (higher substitutability) or towards zero (higher complementarity):
-- How does the capital share change?
-- What about the return to capital?
-
-Another interesting set of observations relate to the transitional dynamics. In particular, decrease σ towards zero and observe how the speed of transition changes. Increase the T₂ slider to see whether and when (how fast) the transition happens. How do you inetrpret this?
-
-(if you want to change other parameters in addition to σ, you should go back to the Parameters section above and use the sliders there)
+### Consumption: Golden-rule vs Optimal Consumption
 """
-
-# ╔═╡ 9620ee95-69ca-44e3-892b-394b68a00a19
-begin
-	σ_slider = @bind σ Slider(0.:.2:10, default=1, show_value = true)
-	T_slider = @bind T₂ Slider(10:10:500, default=50, show_value = true)
-	md"""
-	**Elasticity of substitution between K and N**
-	
-	σ: $(σ_slider)
-	
-	T₂: $(T_slider)  (number of transition periods)
-	"""
-end
-
-# ╔═╡ 00650bbb-f830-45e9-ab38-00c034ac8c2b
-function F_ces(A,K,N,α, σ)
-	if σ==0.
-		return min(K, A*N)
-	elseif σ==1.
-		return F(A,K,N,α)
-	else
-		ρ = 1-(1/σ)
-		(α*K^ρ+(1-α)*((A*N)^ρ))^(1/ρ)
-	end
-end
-
-# ╔═╡ ea573837-22e3-4f85-8ab6-08cd048dc1b1
-begin
-	A_ces, K_ces, N_ces, Y_ces = trajectories(A₁, K₁, N₁,α, g, n, δ, s, σ, T₂, F_ces)
-	k_ces = K_ces./(A_ces.*N_ces)
-	ρ = 1-(1/σ)
-	k_ss_ces = σ==1 ? k_ss : s*((1-α)/((g+n+g*n+δ)^ρ - α*s^ρ))^(1/ρ)
-	y_ss_ces = σ==1 ? k_ss^α : (α*k_ss_ces^(ρ)+(1-α))^(1/ρ)
-	
-	YN_ces = Y_ces./N_ces
-
-	YN_gr_ces = YN_ces[2:end]./YN_ces[1:end-1] .- 1
-	plot(1:T₂-1, YN_gr_ces, label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{Y_{t+1}/N_{t+1}}{Y_t/N_t}-1$", aspect_ratio = :none, fmt=:png)
-	p_kaldor1_ces = plot!(1:T₂-1, g*ones(T₂-1), ls = :dash, lw=2, label = L"BGP")
-
-	KY_ces = K_ces./Y_ces
-	plot(1:T₂-1, KY_ces[1:T₂-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{K_{t}}{Y_{t}}$", aspect_ratio = :none, legend=:bottomright, fmt=:png)
-	p_kaldor2_ces = plot!(1:T₂-1, (k_ss_ces/y_ss_ces)*ones(T₂-1), ls = :dash, lw=2, label = L"BGP")
-
-	if σ==0
-		r_ces = zeros(T₂)
-		for t=1:T₂
-			r_ces[t] = K_ces[t] <= A_ces[t]*N_ces[t] ? 1 : 0
-		end
-		r_ss_ces = 0
-	else
-		r_ces = σ==1 ? α*k_ces.^(α-1) : α*(α.+(1-α)*k_ces.^(1/σ - 1)).^(1/(1-σ))
-		r_ss_ces = σ==1 ? α*k_ss_ces^(α-1) : α*(α+(1-α)*k_ss_ces^(1/σ - 1))^(1/(1-σ))
-	end	
-	
-	plot(1:T₂-1, r_ces[1:T₂-1], label = "Over time", lw = 2, xlabel = L"$t$", ylabel = L"${r_t}$", aspect_ratio = :none,fmt=:png)
-	p_kaldor3_ces = plot!(1:T₂-1, (r_ss_ces)*ones(T₂-1), ls = :dash, lw=2, label = "BGP")
-
-	KS_ces = r_ces.*K_ces./Y_ces
-	KS_ss_ces = r_ss_ces*k_ss_ces/y_ss_ces
-	plot(1:T₂-1, KS_ces[1:T₂-1], label = "Capital Share over time", lw = 2, xlabel = L"$t$", ylabel = L"$\frac{r_t K_t}{Y_t}$", aspect_ratio = :none, ylimits=(0,1),fmt=:png)
-	p_kaldor4_ces = plot!(1:T₂-1, KS_ss_ces*ones(T₂-1), ls = :dash, lw=2, label = "Capital share (BGP)")
-
-	plot(p_kaldor1_ces,p_kaldor2_ces, p_kaldor3_ces, p_kaldor4_ces, layout=(2,2))
-end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1767,53 +1468,23 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─58753ecf-c322-4fb6-bb80-4abfc7cb5459
 # ╟─1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
-# ╟─0fee2ca0-7f57-4647-a187-36a9b3130cad
-# ╟─f8f03434-6a0a-4c91-a084-7f86a13eaf93
-# ╠═b2781e68-cc92-4186-a596-be753c52913e
-# ╟─3ff3caf6-a1e3-4298-ac99-2ff430443dc7
-# ╟─9e596114-e8ef-40ca-aeca-12d02bc49f21
-# ╟─f70f5669-04bf-495a-8adc-8bc7afab6e2e
-# ╟─66af3def-e62a-485a-ad93-901c3e920a96
-# ╟─5669a9d4-c7cc-4426-a77d-33e23bc12175
-# ╟─cc25bdab-c8df-4640-ae4f-d58ba44fc263
-# ╟─29ee6c36-bcfb-40bc-bddf-7f8ba3d47c50
-# ╟─be361a68-cf13-4493-a810-f327c5f97f2c
-# ╟─3c9adefb-048c-4584-9ba8-b4ac22fdcd32
-# ╟─53cc927f-02ec-4403-a3dc-6ea3791359b6
-# ╟─66dbeb2a-32be-499a-a1d4-20c2647b8913
-# ╠═2a5dd85f-8b53-4330-be69-3bee6b731caa
-# ╟─76488fa6-2c94-4dbc-9c06-5bc4eaf6f3c6
-# ╠═3e2db772-2806-4470-b308-b6a8cd271e46
-# ╟─e417f1b3-fa3b-4736-80ef-d733fca46af8
-# ╠═97f40165-4cc3-4705-b19b-a73b5f10ff6d
-# ╟─c31be4ed-5d4d-4d9b-bd86-94c6020a3712
-# ╠═031e0b88-732d-4ce2-9cd6-018faff82e84
-# ╟─0d6af4bc-011f-457a-b4d0-60eda96aa460
-# ╟─02d9cee7-9ca7-48cf-8663-f7fbc23ebc00
-# ╟─17307ffa-4f1c-46e1-bb77-42c978464b91
-# ╟─5d8e400e-9d1c-447c-8d4a-245d4f2a0fec
-# ╟─b4c56d87-3b1c-4a06-974b-87f733bc8018
-# ╟─04a3af31-73a1-4de0-9f65-6ab2e4721447
-# ╟─9f6b6938-c148-48d3-ba78-39d6abd85403
-# ╟─30332b4c-1efb-4236-8284-076a36686164
-# ╟─1937d530-b4d6-4dfb-8436-4d6b02062709
-# ╟─e4e7a385-d0f8-4648-a097-0c3b74c46e0c
-# ╟─56f6341b-47df-4c86-b503-2999feb34ddc
-# ╟─900c31c6-12eb-4f4d-95c8-9aa4ec227beb
-# ╟─a7beeea9-44a9-432b-b41c-32c67ba92afd
-# ╟─6932442c-a3dd-4dfb-b5ed-1bc14ec39c7b
-# ╟─77287e52-6e9f-4228-8542-49fdffa9833f
-# ╟─4ccdc633-e8eb-44bf-9d9f-95226b795ae3
-# ╟─7fff17c8-b267-4d6f-b191-082ac3ac1a49
-# ╟─a279af3a-db5c-4f64-9036-a3679328896c
-# ╟─5ccb172d-c2ee-4b94-b9d3-3b44b059dd1a
-# ╟─a486a61e-eb4d-4ad8-b7a6-fa3d95eeb682
-# ╟─0203b0b7-958a-42e3-a064-d601f165b5fc
-# ╟─643c3a17-5536-4ed6-8faa-f5980ebd70e6
-# ╟─1ec69369-e4a8-4e51-9925-bf502204350f
-# ╟─3cdd278a-1cb6-4ab7-92fb-7798a7eab02f
-# ╟─9620ee95-69ca-44e3-892b-394b68a00a19
-# ╟─00650bbb-f830-45e9-ab38-00c034ac8c2b
-# ╟─ea573837-22e3-4f85-8ab6-08cd048dc1b1
+# ╟─81ff5860-42bc-4372-9362-48dbf3941f86
+# ╟─1babcf34-be7b-47e3-8f55-553dc4dcdae9
+# ╟─0aac9082-95b2-491d-b390-e3ca5a319ca6
+# ╟─d75e4ae5-85b2-401c-9529-fbdbff2f0e96
+# ╟─88df0889-e52c-4c69-871c-c1bf0a29082d
+# ╟─5dfb78d4-9347-4977-8af8-11c6792be42f
+# ╟─72eccfbd-a898-4979-aef0-111166f80e2f
+# ╟─1e234975-ddad-49f4-a809-24e27f374e46
+# ╟─16d4ba04-6451-4600-a53c-8261495a4a43
+# ╟─5610cdad-6cdf-4409-9b1b-db3e57788883
+# ╟─d6892a8d-0f30-4ebd-acb2-0fb3c117b585
+# ╟─05e15b48-0872-484b-89b4-cfbd8ae842ef
+# ╟─84998928-b0e4-46b8-b9b6-39bbc46cf625
+# ╠═08e4679f-2c6f-4062-94cf-706e26eff8d8
+# ╠═c7d6e3e7-7962-4edf-9190-69c257fe1dd7
+# ╟─1dcada9d-b0f6-461b-bafd-a18a95063787
+# ╟─638e99db-5acf-4ab1-9435-5802cf2ead2b
+# ╟─12ef80a7-65ea-46ff-825b-6cd1d3e50bce
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
