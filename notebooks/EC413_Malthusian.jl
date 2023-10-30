@@ -4,30 +4,134 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 58753ecf-c322-4fb6-bb80-4abfc7cb5459
 begin
 	using Plots
-	#using PlotlyLight
 	using LaTeXStrings
-	pyplot()
-	#Preset.Template.plotly_dark!()
-	nothing
+	using PlutoUI
+	using DelimitedFiles
+	using FileIO
+	TableOfContents()
 end
 
 # ╔═╡ 1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
-md"# _Malthusian Model (EC413-AT-2023)_
+md"# _Stagnation and Transition to Modern Growth (EC413-AT-2023)_
 
 "
 
-# ╔═╡ d8947a2b-0b40-4d2c-a301-7a6b239aa79f
+# ╔═╡ b3e0afd5-5a3d-4230-9bb9-abeedba57ba3
+md"""
+## England (1260-2016): Population, Living Standards and Industrialisation
+
+"""
+
+# ╔═╡ be623510-65d4-4a95-8c6a-f45fd96ba936
 begin
-	α = 0.5
-	X = 1
-	ϕ = 1
-	g = 0
-	N₁ = 1
-	A₁ = 1
+	data_eng = readdlm("millenium_England.csv", ',', Float64, '\n'; header=true)
+	years = data_eng[1][:,1]
+	index = ((years .>= 1260) .& (years .<2020))
+	year = data_eng[1][:,1][index]
+	population = data_eng[1][:,2][index]
+	rgdpcap = data_eng[1][:,3][index]
+	pop_growth = [0;(population[2:end]./population[1:end-1]).-1]
+
+	p_pop = plot(year, (population), label = "Population (millions)", xlabel="Year", yaxis= :log, yticks=((4,16,64), (4,16,64)))
+	p_gdp = plot(year, (rgdpcap), label = "Real GDP per capita", xlabel="Year", yaxis=:log, yticks=((1000, 4000, 16000),(1000, 4000, 16000)))
+	
+	plot(p_pop, p_gdp, layout=(2,1))
+	nothing
+	#plot(population, log.(rgdpcap), seriestype=:scatter)
+
+	#plot(log.(rgdpcap), pop_growth, xlim = [6.5,10.5], ylim=[-0.04, 0.04], seriestype=:scatter)
 end
+
+# ╔═╡ 97e86737-7446-471d-889c-0281c3458382
+begin
+	typeof(:red)
+	color_vec = Vector{Symbol}()
+	for i=eachindex(year)
+		if ((year[i] >= 1346) & (year[i] <= 1353))
+			col = :black
+		elseif year[i] <= 1760
+			col = :brown
+		elseif ((year[i] >= 1760) & (year[i] <= 1840))
+			col = :red
+		else
+			col = :blue
+		end
+		
+		#col = year[i] < 1760 ? :red : :red
+		push!(color_vec, col)
+	end
+	#typeof([:red,:red])
+end
+
+# ╔═╡ fe9fc09b-c418-4261-be30-c78540318f21
+begin
+		a1 = Animation()
+		
+		for i in eachindex(year)
+			if color_vec[i]== :black
+				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Black Death, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i])
+			elseif color_vec[i] == :red
+				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Industrial Revolution, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i])
+			elseif color_vec[i] == :brown
+				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Stagnation, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i], legendcolor = color_vec[i])
+			else
+				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Modern Growth, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)),xaxis=:log,yaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i], legendcolor = color_vec[i])
+			end
+			
+		
+			p_anim = plot(p_pcap)
+			frame(a1, p_anim)
+		end
+		
+		gif(a1,"anim_pcap_fps10.gif", fps = 10)
+
+end
+
+# ╔═╡ fa690370-813c-4dcb-bfc0-30a6da39369b
+begin
+		a = Animation()
+	
+		for i in eachindex(year)
+			p_pop = plot(year[1:i], (population[1:i]), label = "Population (millions)", xlabel="Year", ylabel="Population",seriestype=:scatter, yaxis= :log, yticks=((4,16,64), (4,16,64)), xlim=(1250,2020), ylim=(1.5,64), legend=:topleft)
+			vline!([1348], label = "Black Death", color=:black, lw=2)
+			vspan!(p_pop, [1250,1670], color = :brown, alpha = 0.15, labels = "Stagnation")
+			vspan!(p_pop, [1760,1840], color = :red, alpha = 0.2, labels = "Industrial Revolution")
+			#vspan!(p_pop, [1670,1760], color = :green, alpha = 0.15, labels = "Transition to Modern Growth")
+			
+			
+			p_gdp = plot(year[1:i], (rgdpcap[1:i]), label = "Real GDP per capita", xlabel="Year", ylabel="Real GDP per capita",seriestype=:scatter, yaxis= :log, yticks=((1000, 4000, 16000),(1000, 4000, 16000)), xlim=(1250,2020), ylim = (500,32000), legend=:topleft)
+			vspan!(p_gdp, [1250,1670], color = :brown, alpha = 0.15, labels = "Stagnation")
+			vline!([1348], label = "Black Death", color=:black, lw=2)
+			vspan!(p_gdp, [1760,1840], color = :red, alpha = 0.2, labels = "Industrial Revolution")
+			#vspan!(p_gdp, [1670,1760], color = :green, alpha = 0.15, labels = "Transition to Modern Growth")
+			
+		
+			p_anim = plot(p_pop, p_gdp, layout=(2,1))
+			#p_anim = scatter(log.(rgdpcap[1:i]),pop_growth[1:i], lab="")
+			frame(a, p_anim)
+		end
+		
+		gif(a,"anim_fps20.gif", fps = 20)
+
+end
+
+# ╔═╡ 5a2ea32f-1463-46ba-81ce-dd26576e8d30
+md"""
+## Malthusian Economy
+"""
 
 # ╔═╡ b9a169a8-7682-4b72-9a67-42101c33e439
 Fₐ(A,X,N,α) = ((A*X)^α)*(N^(1-α))
@@ -48,14 +152,9 @@ function trajectories(A₁, X, N₁, α, g, ϕ, T)
 	(A, N, Y)
 end
 
-# ╔═╡ 0ea1896b-eea9-4e43-afd1-9f5661a7b52f
-begin
-	T = 50
-	trajectories(A₁, X, N₁, α, g, ϕ, T)
-end
-
 # ╔═╡ a4377f80-d914-4f01-ae66-69c0abeed7ae
 md"""
+## Malthusian Economy: Transitional Dynamics
 ### Assignment 4, Question 2c
 
 """
@@ -65,6 +164,39 @@ N_ss(A,X, α, ϕ) = ((ϕ/(1+ϕ))^(1/α))*A*X
 
 # ╔═╡ b461f924-a7f4-43d2-a4ce-9a64c5ae205c
 y_ss(ϕ) = (1+ϕ)/ϕ
+
+# ╔═╡ 40528c53-1542-45b0-89f4-0e71cbd180c0
+begin
+	α_slider = @bind α Slider(0:0.05:1, default=.5, show_value = true)
+	X_slider = @bind X Slider(1:1:10, default=1, show_value = true)
+	g_slider = @bind g Slider(0:0.02:.2, default=.02, show_value = true)
+	ϕ_slider = @bind ϕ Slider(0:0.5:5, default=1, show_value = true)
+	
+	N₁_slider = @bind N₁ Slider(0.5:.5:10, default=1, show_value = true)
+	
+	md"""
+	Let's start with these parameters. You can use the sliders to change them and see the effects:
+	
+	α: $(α_slider)
+	
+	X: $(X_slider)
+	
+	g: $(g_slider)
+	
+	ϕ: $(ϕ_slider)
+	
+	N₁: $(N₁_slider)
+	"""
+end
+
+# ╔═╡ 0ea1896b-eea9-4e43-afd1-9f5661a7b52f
+begin
+	#N₁ = 1 # initial population
+	A₁ = 1 # initial Malthusian Technology
+	T = 50
+	trajectories(A₁, X, N₁, α, g, ϕ, T)
+	nothing
+end
 
 # ╔═╡ 3880eb84-17d5-4533-a242-5a4dee87a97a
 begin
@@ -90,15 +222,16 @@ begin
 	Nₑ = N_ssₑ*ones(T)
 	Yₑ = y_ssₑ.*Nₑ	
 	yₑ = Yₑ./Nₑ
+	nothing
 end
 
 # ╔═╡ 9790bd65-3de3-4cbb-8f70-9b267ee92dee
 begin
-	plot(time, yₑ, label = "England", lw = 2, xlabel = "time", ylabel = "Y_t/N_t",fmt=:png)
+	plot(time, yₑ, label = "England", lw = 2, xlabel = "time", ylabel = L"\frac{Y_t}{N_t}",fmt=:png)
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
 	p_y = plot!(time, yᵢ, label = "Ireland", lw = 2)
 
-	plot(time, Nₑ, label = "England", lw = 2, xlabel = "time", ylabel = "N_t",fmt=:png)
+	plot(time, Nₑ, label = "England", lw = 2, xlabel = "time", ylabel = L"N_t",fmt=:png)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
 	p_N = plot!(time, Nᵢ, label = "Ireland", ls=:dash, lw = 2)
 	
@@ -107,6 +240,7 @@ end
 
 # ╔═╡ b62e77b7-9b38-4122-a43f-b2efc43421a4
 md"""
+
 ### Assignment 4, Question 2d
 
 """
@@ -130,6 +264,7 @@ begin
 	Yₑ2 = y_ssₑ.*Nₑ
 	Aₑ2[6:T], Nₑ2[6:T], Yₑ2[6:T] = trajectories(2*A₁, Xₑ, N_ssₑ, α, g, ϕ, T-5)
 	yₑ2 = Yₑ2./Nₑ2
+	nothing
 end
 
 # ╔═╡ f4df4665-4207-4108-ad9e-464017185aa7
@@ -138,22 +273,35 @@ begin
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
 	p_y2 = plot!(time, yᵢ2, label = "Ireland", lw = 2)
 
-	plot(time, Nₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"${N_t}$")
+	plot(time, Nₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"${N_t}$", legend= :bottomright)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
 	p_N2 = plot!(time, Nᵢ2, label = "Ireland", ls=:dash, lw = 2)
 	
 	plot(p_y2,p_N2, layout=(2,1))
 end
 
+# ╔═╡ c676e221-2054-47e2-825a-551ed8f5e3f3
+md"""
+## Industrialisation: the Two-Sector Model
+
+
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
+DelimitedFiles = "~1.9.1"
+FileIO = "~1.16.1"
 LaTeXStrings = "~1.3.0"
 Plots = "~1.39.0"
+PlutoUI = "~0.7.52"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -162,7 +310,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "8fd9f5fd3b84dfc75c3cbf12c31683fecd9303c2"
+project_hash = "f4630ca3487bc8f411c1eb0ba0983433ba16c139"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "91bd53c39b9cbfb5ef4b015e8b582d344532bd0a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.2.0"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -315,6 +469,12 @@ git-tree-sha1 = "74faea50c1d007c85837327f6775bea60b5492dd"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.2+2"
 
+[[deps.FileIO]]
+deps = ["Pkg", "Requires", "UUIDs"]
+git-tree-sha1 = "299dc33549f68299137e51e6d49a13b5b1da9673"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.16.1"
+
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
@@ -400,6 +560,24 @@ deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll",
 git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
+
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "c47c5fa4c5308f27ccaac35504858d8914e102f9"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.4"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "d75853a0bdbfb1ac815478bacd89cd27b550ace6"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.3"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -576,6 +754,11 @@ git-tree-sha1 = "c1dd6d7978c12545b4179fb6153b9250c96b0075"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.3"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
+
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "9ee1618cbf5240e6d4e0371d6f24065083f60c48"
@@ -723,6 +906,12 @@ version = "1.39.0"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "e47cd150dbe0443c3a3651bc5b9cbd5576ab75b7"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.52"
+
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "03b4c25b43cb84cee5c90aa9b5ea0a78fd848d2f"
@@ -869,6 +1058,11 @@ weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
     TestExt = ["Test", "Random"]
+
+[[deps.Tricks]]
+git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.8"
 
 [[deps.URIs]]
 git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
@@ -1205,20 +1399,27 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╠═58753ecf-c322-4fb6-bb80-4abfc7cb5459
-# ╠═1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
-# ╠═d8947a2b-0b40-4d2c-a301-7a6b239aa79f
+# ╟─58753ecf-c322-4fb6-bb80-4abfc7cb5459
+# ╟─1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
+# ╟─b3e0afd5-5a3d-4230-9bb9-abeedba57ba3
+# ╟─be623510-65d4-4a95-8c6a-f45fd96ba936
+# ╟─97e86737-7446-471d-889c-0281c3458382
+# ╟─fe9fc09b-c418-4261-be30-c78540318f21
+# ╟─fa690370-813c-4dcb-bfc0-30a6da39369b
+# ╟─5a2ea32f-1463-46ba-81ce-dd26576e8d30
 # ╠═b9a169a8-7682-4b72-9a67-42101c33e439
-# ╠═b194308f-ce12-4cde-9599-169b680ae2b9
+# ╟─b194308f-ce12-4cde-9599-169b680ae2b9
 # ╠═0ea1896b-eea9-4e43-afd1-9f5661a7b52f
-# ╠═a4377f80-d914-4f01-ae66-69c0abeed7ae
+# ╟─a4377f80-d914-4f01-ae66-69c0abeed7ae
 # ╠═f86d85e8-5f20-4319-9195-211aff6bd722
 # ╠═b461f924-a7f4-43d2-a4ce-9a64c5ae205c
-# ╠═3880eb84-17d5-4533-a242-5a4dee87a97a
-# ╠═2b9941b7-1abe-4f69-8b92-7d03f47bd56a
-# ╠═9790bd65-3de3-4cbb-8f70-9b267ee92dee
-# ╠═b62e77b7-9b38-4122-a43f-b2efc43421a4
-# ╠═bde5d0d5-6089-4f4b-bb1a-757596d5bc52
-# ╠═f4df4665-4207-4108-ad9e-464017185aa7
+# ╟─3880eb84-17d5-4533-a242-5a4dee87a97a
+# ╟─2b9941b7-1abe-4f69-8b92-7d03f47bd56a
+# ╟─40528c53-1542-45b0-89f4-0e71cbd180c0
+# ╟─9790bd65-3de3-4cbb-8f70-9b267ee92dee
+# ╟─b62e77b7-9b38-4122-a43f-b2efc43421a4
+# ╟─bde5d0d5-6089-4f4b-bb1a-757596d5bc52
+# ╟─f4df4665-4207-4108-ad9e-464017185aa7
+# ╟─c676e221-2054-47e2-825a-551ed8f5e3f3
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
