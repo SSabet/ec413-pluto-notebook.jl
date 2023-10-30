@@ -567,7 +567,7 @@ begin
 	Aₕ, Kₕ, Nₕ, Yₕ = trajectories(A₁, K₁ₕ, N₁,α, g, n, δ, s, T)
 	kₕ = Kₕ./(Aₕ.*Nₕ)
 	begin	
-	plot(1:T, kₕ, label = L"$k_t$ of England", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
+	plot(1:T, kₕ, label = "k of England over time", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
 	plot!(1:T, k_ss*ones(T), label = L"Steady State $\bar{k}$", ls=:dash, lw = 2)
 	end
 end
@@ -1790,7 +1790,7 @@ version = "1.4.1+1"
 # ╠═031e0b88-732d-4ce2-9cd6-018faff82e84
 # ╟─0d6af4bc-011f-457a-b4d0-60eda96aa460
 # ╟─02d9cee7-9ca7-48cf-8663-f7fbc23ebc00
-# ╠═17307ffa-4f1c-46e1-bb77-42c978464b91
+# ╟─17307ffa-4f1c-46e1-bb77-42c978464b91
 # ╟─5d8e400e-9d1c-447c-8d4a-245d4f2a0fec
 # ╟─b4c56d87-3b1c-4a06-974b-87f733bc8018
 # ╟─04a3af31-73a1-4de0-9f65-6ab2e4721447

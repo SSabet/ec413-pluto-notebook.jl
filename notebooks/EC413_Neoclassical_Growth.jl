@@ -245,7 +245,10 @@ function VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
 	
 	k = range(1e-4,4, length=grid_size) # define a discrete grid for the state variable
 	
-	v = U.(k, γ) # initial guess
+	v = U.(k, γ) # initial guess: utility of capital
+	#v = copy(k) # another inital guess: k itself
+	#v = zeros(grid_size) # yet another initial guess: zeros!
+	
 	v_next = similar(v) # next (improved) guess
 	k_next = similar(k) # capital next period (policy function)
 	k_next_index = similar(k) # index of capital next period on the same grid
@@ -279,10 +282,19 @@ function VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
 		k_next[grid_point] = k[k_next_index[grid_point][2]]
 	end
 	
-	println("Value function converged at iteration $(iter) with distance $(round(last_distance;digits=accuracy_degree+1)).")
+	println("Value function converged at iteration $(iter) with error $(round(last_distance;digits=accuracy_degree+1)).")
 		
 	return (v, k, k_next, iter, distance)
 end
+
+# ╔═╡ e6c1a118-6814-4449-98bd-dc86145986c4
+md"""
+**Observations and Questions**
+
+1. We proceeded with a grid of size 100. Look at the consumption and saving policies below, pretty jagged. Now increase the grid size and notice how the jaggedness changes. How the time to run changes?
+2. Compare the steady state level of consumption and saving rate with the golden-rule. What's the intuition? Change parameters, in particular δ and γ and observe how it changes.
+3. I use $v_1(k) = U(k)$ as hte default initial guess. Now change the initial guess and observe how the number of iterations needed to get convergence and the convergence time changes (e.g. to use $v_1(k)=0$, go to the code block where function VFI is defined, find the line with `v=zeros(grid_size)` and uncomment it by deleting the `#` character.)
+"""
 
 # ╔═╡ 1dcada9d-b0f6-461b-bafd-a18a95063787
 begin
@@ -320,20 +332,23 @@ end
 begin
 	β_tilde = β*(1+g+n+g*n)^(1-γ)
 
-	accuracy_degree = 10
+	accuracy_degree = 5
 	 #tolerance for convergence
 	maxit = 1000 #maximum number of iterations on value function (to avoid an infinite loop)
 	
 	#grid_size = 100 # size of the grid
-	v, k, k_next, iter, distance = VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
+	@time 	v, k, k_next, iter, distance = VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
+
 	c = (1-δ).*k + k.^α - (1+g)*(1+n).*k_next
 	savings = 1 .- (c./( k.^α))
+	nothing
 end
 
 # ╔═╡ 05e15b48-0872-484b-89b4-cfbd8ae842ef
 begin
 	k_ss = (α*β_tilde/(1+g+n+g*n-β_tilde*(1-δ)))^(1/(1-α))
 	c_ss = k_ss^α - (g+n+g*n+δ)*k_ss
+	s_ss = 1 - (c_ss/( k_ss^α))
 
 	k_golden = (α/(g+n+g*n+δ))^(1/(1-α))
 	c_golden = (1-α)*(α/(g+n+g*n+δ))^(α/(1-α))
@@ -342,20 +357,22 @@ end
 
 # ╔═╡ 638e99db-5acf-4ab1-9435-5802cf2ead2b
 begin	
-	p_c = plot(k, c, label = "consumption", lw=2, xlabel=L"k", ylabel=L"c", legend=:bottomright)
+	p_c = plot(k, c, label = "consumption", lw=2, xlabel=L"k", ylabel=L"c",fmt=:png, legend=:bottomright)
 	p_next = plot!([k_ss], [c_ss], seriestype = :scatter, label="Steady State")
 	p_next = plot!(k, c_golden*ones(grid_size), seriestype = :line, label="Golden Rule c")
 	
-	plot(k, k_next, label = "Next period capital", xlabel=L"k", ylabel=L"k'")
+	plot(k, k_next, label = "Next period capital", xlabel=L"k", ylabel=L"k'",fmt=:png,legend=:bottomright, lw=2)
 	p_next = plot!(k, k, label = "45ᵒ line", ls=:dash, lw = 2)
 	p_next = plot!([k_ss], [k_ss], seriestype = :scatter, label="Steady State")
 	
-	p_sav = plot(k, savings, label = "saving rate", lw=2, xlabel=L"k", ylabel=L"s")
+	p_sav = plot(k, savings, label = "saving rate", lw=2, xlabel=L"k", ylabel=L"s",fmt=:png)
 	#p_sav = plot!(k[2:end],zeros(grid_size-1), ls = :dash, label = "zero")
-	p_sav = plot!(k, α*ones(grid_size), seriestype = :line, label="Golden Rule s")
+	p_sav = plot!(k, α*ones(grid_size), seriestype = :line, label="Golden Rule s", lw=2)
+	p_sav = plot!([k_ss], [s_ss], seriestype = :scatter, label="Steady State")
 
-	p_converge = plot((distance[1:iter-1]), xlabel= "Iteration n", ylabel=L"$\max\left(|v^n - v^{n-1}|\right)$", label = "Accuracy and Convergence", yaxis = :log, yticks=((0.000001, 0.001, 1, 100, 1000),(0.000001, 0.001, 1, 100, 1000)))
 
+	p_converge = plot((distance[1:iter-1]), xlabel= "Iteration n", ylabel=L"$\max\left(|v_n - v_{n-1}|\right)$", label = "Accuracy and Convergence", yaxis = :log, yticks=((0.000001, 0.001, 1, 100, 1000),(0.000001, 0.001, 1, 100, 1000)), lw=2,fmt=:png)
+	
 	plot(p_c, p_next, p_sav, p_converge, layout = (2,2))
 end
 
@@ -1483,8 +1500,9 @@ version = "1.4.1+1"
 # ╟─84998928-b0e4-46b8-b9b6-39bbc46cf625
 # ╠═08e4679f-2c6f-4062-94cf-706e26eff8d8
 # ╠═c7d6e3e7-7962-4edf-9190-69c257fe1dd7
+# ╟─e6c1a118-6814-4449-98bd-dc86145986c4
 # ╟─1dcada9d-b0f6-461b-bafd-a18a95063787
-# ╟─638e99db-5acf-4ab1-9435-5802cf2ead2b
+# ╠═638e99db-5acf-4ab1-9435-5802cf2ead2b
 # ╟─12ef80a7-65ea-46ff-825b-6cd1d3e50bce
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
