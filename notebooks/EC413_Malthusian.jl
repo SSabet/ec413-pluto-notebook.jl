@@ -269,11 +269,11 @@ end
 
 # ╔═╡ f4df4665-4207-4108-ad9e-464017185aa7
 begin
-	plot(time, yₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"$\frac{Y_t}{N_t}$")
+	plot(time, yₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"$\frac{Y_t}{N_t}$",fmt=:png)
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
 	p_y2 = plot!(time, yᵢ2, label = "Ireland", lw = 2)
 
-	plot(time, Nₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"${N_t}$", legend= :bottomright)
+	plot(time, Nₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"${N_t}$", legend= :bottomright,fmt=:png)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
 	p_N2 = plot!(time, Nᵢ2, label = "Ireland", ls=:dash, lw = 2)
 	
