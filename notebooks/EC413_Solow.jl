@@ -27,7 +27,7 @@ md"# _Solow Growth Model in Discrete Time (EC413-AT-2023)_
 
 ## How to use this notebook
 
-This is an **interactive** _Julia_ notebook to let you play around with examples of Solow model that you have seen in the lecture and seminars.
+This is an **interactive** _Julia_ notebook to let you play around with the models that you have seen in the lecture and seminars; to make it easy for you to study the comparative statics and dynamics of the workhorse models of economic growth.
 
 #### Basic usage
 
@@ -430,65 +430,6 @@ Again consider the economy we introduced above, which starts from a level of cap
 The graph on the top left shows how the growth rate of income per capita approaches a constant ($g$) over time. The top-right graph shows the evolution of capital-output ratio; bottom-left the rate of return to capital, and bottom-right the share of capital from ourput.
 """
 
-# ╔═╡ 5ccb172d-c2ee-4b94-b9d3-3b44b059dd1a
-md"""
-## The Golden Rule Consumption
-*What is the highest consumption level that can be sustained in the Solow model?*
-
-Note that the steady state income per effective units of labour is
-
-$\bar{y}=\left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-So on the BGP, income per capita is:
-
-$\frac{Y_t}{N_t}=A_t \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-Saving rate is $s$, so consumption per capita is:
-
-$\frac{C_t}{N_t}=A_t (1-s) \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-What saving rate $s^*$ maximises this expression? The expression on the RHS is strictly concave in s if $\alpha<\frac{1+s}{2}$ (empirically reasonable). The FOC implies that $s^* = \alpha$. So the Golden rule saving rate is equal to $\alpha$. Hence, the Golden rule level of capita per effective labour is:
-
-${y^*}=\left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-Similarly the Golden rule consumption level of consumption per capita is:
-
-$\frac{C_t^*}{N_t}=A_t (1-\alpha) \left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
-
-The following graph shows how consumption per effective labour at BGP changes as a function of s (Assume $A_t = 1$):
-"""
-
-# ╔═╡ a486a61e-eb4d-4ad8-b7a6-fa3d95eeb682
-begin
-	α1_slider = @bind α1 Slider(0:0.05:1, default=.3, show_value = true)
-	
-	md"""
-	**Golden-rule consumption as a function of α**
-	
-	α: $(α1_slider)
-	
-	"""
-end
-
-# ╔═╡ 0203b0b7-958a-42e3-a064-d601f165b5fc
-begin
-	grid_size = 100
-	ss = range(0,1,length = grid_size)
-	cs = zeros(grid_size)
-	for i in eachindex(ss)
-		si = ss[i]
-		cs[i] = (1-si)*(si/(n+g+n*g+δ))^(α1/(1-α1))
-	end
-	
-	sgold = α1
-	c_golden = (1-sgold)*(sgold/(n+g+n*g+δ))^(α1/(1-α1))
-	
-	plot(ss, cs, xlabel = "s (saving rate)", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
-	#vline([c_golden])
-	plot!([α1], seriestype = :vline, linestyle=:dash, label = "")
-	plot!([α1],[c_golden], seriestype = :scatter, label="Golden-rule consumption")
-end
-
 # ╔═╡ 643c3a17-5536-4ed6-8faa-f5980ebd70e6
 md"""
 ## Different Elasticities of Substitution (Between K, N)
@@ -568,7 +509,7 @@ begin
 	kₕ = Kₕ./(Aₕ.*Nₕ)
 	begin	
 	plot(1:T, kₕ, label = "k of England over time", lw = 2, xlabel = "time", ylabel = L"$k_t$",fmt=:png)
-	plot!(1:T, k_ss*ones(T), label = L"Steady State $\bar{k}$", ls=:dash, lw = 2)
+	plot!(1:T, k_ss*ones(T), label = "Steady State k", ls=:dash, lw = 2)
 	end
 end
 
@@ -623,7 +564,7 @@ function F_ces(A,K,N,α, σ)
 	end
 end
 
-# ╔═╡ ea573837-22e3-4f85-8ab6-08cd048dc1b1
+# ╔═╡ 34f76290-3329-411a-8c16-8d118d5502f0
 begin
 	A_ces, K_ces, N_ces, Y_ces = trajectories(A₁, K₁, N₁,α, g, n, δ, s, σ, T₂, F_ces)
 	k_ces = K_ces./(A_ces.*N_ces)
@@ -661,6 +602,65 @@ begin
 	p_kaldor4_ces = plot!(1:T₂-1, KS_ss_ces*ones(T₂-1), ls = :dash, lw=2, label = "Capital share (BGP)")
 
 	plot(p_kaldor1_ces,p_kaldor2_ces, p_kaldor3_ces, p_kaldor4_ces, layout=(2,2))
+end
+
+# ╔═╡ b14b8354-2e08-45e5-ba22-42b09f9bdec4
+md"""
+## The Golden Rule Consumption
+*What is the highest consumption level that can be sustained in the Solow model?*
+
+Note that the steady state income per effective units of labour is
+
+$\bar{y}=\left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
+
+So on the BGP, income per capita is:
+
+$\frac{Y_t}{N_t}=A_t \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
+
+Saving rate is $s$, so consumption per capita is:
+
+$\frac{C_t}{N_t}=A_t (1-s) \left(\frac{s}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
+
+What saving rate $s^*$ maximises this expression? The expression on the RHS is strictly concave in s if $\alpha<\frac{1+s}{2}$ (empirically reasonable). The FOC implies that $s^* = \alpha$. So the Golden rule saving rate is equal to $\alpha$. Hence, the Golden rule level of capita per effective labour is:
+
+${y^*}=\left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
+
+Similarly the Golden rule consumption level of consumption per capita is:
+
+$\frac{C_t^*}{N_t}=A_t (1-\alpha) \left(\frac{\alpha}{g+n+gn+\delta}\right)^\frac{\alpha}{1-\alpha}.$
+
+The following graph shows how consumption per effective labour at BGP changes as a function of s (Assume $A_t = 1$):
+"""
+
+# ╔═╡ f020457b-6e0a-427c-ab6b-cd75517e5bb4
+begin
+	α1_slider = @bind α1 Slider(0:0.05:1, default=.3, show_value = true)
+	
+	md"""
+	**Golden-rule consumption as a function of α**
+	
+	α: $(α1_slider)
+	
+	"""
+end
+
+# ╔═╡ 995e60a0-f26f-48d0-be2e-9d721c47d9e4
+begin
+	grid_size = 100
+	ss = range(0,1,length = grid_size)
+	cs = zeros(grid_size)
+	for i in eachindex(ss)
+		si = ss[i]
+		cs[i] = (1-si)*(si/(n+g+n*g+δ))^(α1/(1-α1))
+	end
+	
+	sgold = α1
+	c_golden = (1-sgold)*(sgold/(n+g+n*g+δ))^(α1/(1-α1))
+	
+	plot(ss, cs, xlabel = "s (saving rate)", ylabel="Consumption per capita", lw=2, label = "C/N",fmt=:png)
+	#vline([c_golden])
+	plot!([α1], seriestype = :vline, linestyle=:dash, label = "")
+	plot!([α1],[c_golden], seriestype = :scatter, label="Golden-rule consumption")
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1806,14 +1806,14 @@ version = "1.4.1+1"
 # ╟─4ccdc633-e8eb-44bf-9d9f-95226b795ae3
 # ╟─7fff17c8-b267-4d6f-b191-082ac3ac1a49
 # ╟─a279af3a-db5c-4f64-9036-a3679328896c
-# ╟─5ccb172d-c2ee-4b94-b9d3-3b44b059dd1a
-# ╟─a486a61e-eb4d-4ad8-b7a6-fa3d95eeb682
-# ╟─0203b0b7-958a-42e3-a064-d601f165b5fc
 # ╟─643c3a17-5536-4ed6-8faa-f5980ebd70e6
 # ╟─1ec69369-e4a8-4e51-9925-bf502204350f
 # ╟─3cdd278a-1cb6-4ab7-92fb-7798a7eab02f
 # ╟─9620ee95-69ca-44e3-892b-394b68a00a19
+# ╟─34f76290-3329-411a-8c16-8d118d5502f0
 # ╟─00650bbb-f830-45e9-ab38-00c034ac8c2b
-# ╟─ea573837-22e3-4f85-8ab6-08cd048dc1b1
+# ╟─b14b8354-2e08-45e5-ba22-42b09f9bdec4
+# ╟─f020457b-6e0a-427c-ab6b-cd75517e5bb4
+# ╟─995e60a0-f26f-48d0-be2e-9d721c47d9e4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

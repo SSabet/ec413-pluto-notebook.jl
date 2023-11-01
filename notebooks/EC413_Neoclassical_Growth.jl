@@ -24,6 +24,26 @@ end
 
 # ╔═╡ 1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
 md"# _Neoclassical Growth Model (EC413-AT-2023)_
+
+## How to use this notebook
+
+This is an **interactive** _Julia_ notebook to let you play around with the models that you have seen in the lecture and seminars; to make it easy for you to study the comparative statics and dynamics of the workhorse models of economic growth.
+
+#### Basic usage
+
+- The good news is, you do not need to know _Julia_ (or any programming language) to make use of this notebook! For example, to see the effect of a change in parameters on the graphs or numerical results, simply use the sliders; changes will immediately take effect in the graphs and values (e.g., in the steady state level of capital per effective units of labour). If no slider is provided for the parameter you are interested in, you just need to change the parameter value at the point it is defined and then hit \"Shift+Enter\"
+
+#### Advanced usage
+
+- Feel free to edit this notebook as you wish! Change or delete the cells, values, functional forms etc., add new cells and experiment; break it and learn! **Don't worry, you won't be breaking the source code, this is your own copy!** If you ended up breaking your copy too much, you can always close the browser and reload it again.
+- In almost all cases, I make the cells (including either the markdown or th Julia code) invisible; If you're interested in reading, inspecting or even playing around with the code, hover your mouse to the left of a cell, there is an ``eye'' icon you can click on for the code to become visible; click it once more to make it invisible again.
+- If you are interested in editing the code and you don't know Julia (but you know Matlab or Python), there is a shortcut: you can use the [excellent cheatsheet](https://cheatsheets.quantecon.org/) here. If you know R but not Julia, you can use this [R-Julia comparison cheatsheet](https://github.com/sswatson/cheatsheets/blob/master/jpr-cheatsheet.pdf).
+- If you are going to inspect the code, notice that the Julia code in these notebooks are mainly for educational purposes, so it's not necessarily efficient or idiomatic. It's mostly written with the purpose that a wider range of the students (with different or even no programming background) can more easily understand the code.
+
+Any questions, suggestions or issues? Don't hesitate to get in touch!
+
+**Have fun!**
+
 ## Ingredients
 
 Solow model was based on behavioural rules (in particular, constant s). Let's now transcend to proper equilibrium growth models which are typical in macroeconomics, based on
@@ -110,6 +130,8 @@ Hence, ratio of marginal utilities is independent of level of consumption. Power
 
 $U(C) = \frac{C^{1-\gamma}}{1-\gamma}$
 where $\gamma$ is the coefficient of relative risk aversion.
+
+Note: In lectures $\gamma$ is denoted as $\sigma$. I keep $\sigma$ for elasticity of substitution, and use $\gamma$ for the inverse of elasticity of intertemporal substitution.
 """
 
 # ╔═╡ 72eccfbd-a898-4979-aef0-111166f80e2f
@@ -202,14 +224,25 @@ g &= 0.02\\
 # ╔═╡ d6892a8d-0f30-4ebd-acb2-0fb3c117b585
 md"""
 ## Solving the Neoclassical Growth Model
+
+Remember that the Bellman equation is a functional equation, i.e., the solution to which is a function $v(k)$ which tells us what is the value of our problem (the discounted lifetime utility in this case) is we start with capital $k, \quad \forall k$. This is closely liked to the policy functions, such as $c(k)$ which tells us if we start today with a capital $k$, what would our optimal consumption decision be.
+
+The underlying idea for solving the Bellman equation is that under some reasonable conditions, the Bellman operator would be a contraction mapping. There would be a unique fixed point (the value function $v(k)$) which we can solve for either analytically or numerically.
+
 ### Analytical Solution (by Guess and Verify)
+
 You practiced this in your assignments.
+
+There are more sophisticated analytical methods, but that's for another notebook!
 
 ### *Intro to Numerical Solutions: Value Function Iteration (Optional)*
 
 #### Steps 
 ##### 1.Building the grid for the state variable
-We need to choose a higher end, a lower end and the layout (e.g., equi-spaced or nonlinear); as regarding the layout, here we go with the simple case of equi-distance. 
+
+We want to solve for a function, here on $\mathbb{R}^+$ which is uncountably infinite. We need to limit ourselves to a finite approximation; that is we choose a grid (a finite set of points for $k$) and try to find the value function on these points. In terms of data structures, we often call these `vectors'.
+
+To this end, we need to choose a higher end, a lower end and the layout (e.g., equi-spaced or nonlinear); as regarding the layout, here we go with the simple case of equi-distance. 
 
 What about the lower and higher ends $[\underline{k}, \bar{k}]$? What is crucial is that starting with any point in the grid, we should make sure that the next period state (which might be a control as in this problem: $k'$) again falls within the grid. More precisely, we should make sure that someone who starts from the lower end level of capital $\underline{k}$, would optimally choose a $k'$ higher than $k$, and someone starting from $\bar{k}$ would optimally choose to a lower $k'$.
 
@@ -226,14 +259,26 @@ With the chosen parameters, the steady state level of capital per effective unit
 md"""
 Hence we can choose the grid so that the lower end is below this, the higher end is above. That (plus the stability of the equilibrium) would ensure that the grid is proper. Here let's choose the grid limits a bit wider: 
 
-$k_{grid} = [0.0001, 4]$
+$k_{grid} = [0.0001, 6]$
 We can choose how many grid points to put on this; I go with 100, but feel free to adjust it if you want (varable **`grid_size`**). 
 
 ##### 2.Initial guess
 
+Initial guess usually matters for faster convergence. Here we use the utility function evaluated at $k$, that is $v_1(k) = U(k)$ as our initial guess. There are other options in the code such as $v_1(k) = k$, or $v_1(k) \equiv 0$ which you can experiment with.
+
 ##### 3.Going from one guess to the next
 
+Updating is important as it is the most costly step. In the implementation below, I use one of the simplest but most inefficient ways of updating. We have a guess for $v(k)$, how to find a better guess? For each $k$ we want to update/improve our estimate for $v(k)$, as well as to find the optimal control $k'(k)$.
+
+One way to do this is to limit $k'$ to be one of the chosen grid points. Hence for each $k$, we make use of the right hand side of th Bellman equation (the Bellman operator) to find these two objects of interest. That is, we consider the grid points as the choice set for $k'$; for each possible choice $k'$ we first check whether it's feasible (in the sense that consumption is nonnegative); if it was, we compute our utility today given this $k'$, and add this to the discounted value of $k'$ using our current guess. We then choose the $k'$ which maximises this value; and take the new value which we get using this $k'$, as the updated approximation.
+
+We do this for all grid points, and at the end, we have a whole new vector `v_next(k)`, which represents an update of `v(k)`.
+
+We check whether `v_next(k)` is close enough to `v(k)`, if yes, if consider it as the **fixed point**; if not, we make `v_next(k)` our new `v(k)` and repeat the loop to update it.
+
 ##### 4.Until? Convergence ...
+
+As we said, we repeat this process until convergence. But what does convergence mean? Note that fixed point is a mathematical concept; with computers, what's often practical is that we don't look for two vectors that are identical, but just **close enough**. This means we should look at how close those two vectors are. Here I use the maximum of relative absolute difference between their components (in mathematical terms, it's called the sup norm).
 
 """
 
@@ -243,9 +288,9 @@ function VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
 
 	tol = 10.0^(-accuracy_degree)
 	
-	k = range(1e-4,4, length=grid_size) # define a discrete grid for the state variable
+	k = range(1e-4,6, length=grid_size) # define a discrete grid for the state variable
 	
-	v = U.(k, γ) # initial guess: utility of capital
+	v = U.(k, γ) # initial guess: utility function applied to capital
 	#v = copy(k) # another inital guess: k itself
 	#v = zeros(grid_size) # yet another initial guess: zeros!
 	
@@ -269,20 +314,22 @@ function VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
 				value_matrix[i_min:grid_size,j] = U.((1-δ).*k[i_min:grid_size].+k[i_min:grid_size].^α .- (1+g+n+g*n)*k_j, γ).+ β_tilde*v[j]		
 			end
 		end
-		v_next = reshape(maximum(value_matrix, dims=2),size(v))
+		v_next = reshape(maximum(value_matrix, dims=2),size(v)) # for each value k on the grid find the maximum value over all feasible controls k' on the grid that she can choose
 				
-		distance[iter] = maximum(abs.(v-v_next))
+		distance[iter] = maximum(abs.(v_next./v .-1)) # compute the distance between the new value function estimate and the last one before this; if it's small enough (less than the tolerance), means we are approximately at the fixed point
 		last_distance = distance[iter]
+			
 		iter+=1		
-		v = v_next
+		v = v_next # new estimate for v, becomes a new guess, and we repeat
 	end
 
-	k_next_index = reshape(argmax(value_matrix, dims=2),size(v))
+	k_next_index = reshape(argmax(value_matrix, dims=2),size(v)) # find the index of the optimal control, that is index of k' on the grid, for all k
 	for grid_point=1:grid_size
 		k_next[grid_point] = k[k_next_index[grid_point][2]]
 	end
+
 	
-	println("Value function converged at iteration $(iter) with error $(round(last_distance;digits=accuracy_degree+1)).")
+	println("Value function converged at iteration $(iter) with error $(round(last_distance;digits=accuracy_degree+2)).")
 		
 	return (v, k, k_next, iter, distance)
 end
@@ -291,14 +338,14 @@ end
 md"""
 **Observations and Questions**
 
-1. We proceeded with a grid of size 100. Look at the consumption and saving policies below, pretty jagged. Now increase the grid size and notice how the jaggedness changes. How the time to run changes?
-2. Compare the steady state level of consumption and saving rate with the golden-rule. What's the intuition? Change parameters, in particular δ and γ and observe how it changes.
-3. I use $v_1(k) = U(k)$ as hte default initial guess. Now change the initial guess and observe how the number of iterations needed to get convergence and the convergence time changes (e.g. to use $v_1(k)=0$, go to the code block where function VFI is defined, find the line with `v=zeros(grid_size)` and uncomment it by deleting the `#` character.)
+1. We proceeded with a grid of size 100. Look at the consumption and saving policies below, pretty **jagged**. Now increase the grid size and notice how the jaggedness changes. How the time to run changes?
+2. Compare the steady state level of consumption and saving rate with the golden-rule. What's the intuition? Change parameters, in particular δ and γ and observe how it changes; what happens if you set $\delta = \gamma = 1$? Is the saving rate in the neoclassical model still decreasing in capital?
+3. I use $v_1(k) = U(k)$ as the default initial guess. Now change the initial guess and observe how the number of iterations needed to get convergence and the convergence time changes (e.g. to use $v_1(k)=0$, go to the code block where function VFI is defined, find the line with `v=zeros(grid_size)` and uncomment it by deleting the `#` character.)
 """
 
 # ╔═╡ 1dcada9d-b0f6-461b-bafd-a18a95063787
 begin
-	grid_slider = @bind grid_size Slider(100:100:1000, default=100, show_value = true)
+	grid_slider = @bind grid_size Slider(100:300:700, default=100, show_value = true)
 	n_slider = @bind n Slider(0:0.01:.1, default=0, show_value = true)
 	g_slider = @bind g Slider(0:0.02:.2, default=.02, show_value = true)
 	δ_slider = @bind δ Slider(0:0.05:1, default=.1, show_value = true)
@@ -332,12 +379,12 @@ end
 begin
 	β_tilde = β*(1+g+n+g*n)^(1-γ)
 
-	accuracy_degree = 5
+	accuracy_degree = 4
 	 #tolerance for convergence
 	maxit = 1000 #maximum number of iterations on value function (to avoid an infinite loop)
 	
 	#grid_size = 100 # size of the grid
-	@time 	v, k, k_next, iter, distance = VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
+	@time v, k, k_next, iter, distance = VFI(n,g,δ,α,β, γ, accuracy_degree, maxit, grid_size)
 
 	c = (1-δ).*k + k.^α - (1+g)*(1+n).*k_next
 	savings = 1 .- (c./( k.^α))
@@ -371,14 +418,20 @@ begin
 	p_sav = plot!([k_ss], [s_ss], seriestype = :scatter, label="Steady State")
 
 
-	p_converge = plot((distance[1:iter-1]), xlabel= "Iteration n", ylabel=L"$\max\left(|v_n - v_{n-1}|\right)$", label = "Accuracy and Convergence", yaxis = :log, yticks=((0.000001, 0.001, 1, 100, 1000),(0.000001, 0.001, 1, 100, 1000)), lw=2,fmt=:png)
+	p_converge = plot((distance[1:iter-1]), xlabel= "Iteration n", ylabel=L"$\max\left(|v_n/v_{n-1} - 1|\right)$", label = "Accuracy and Convergence", yaxis = :log, yticks=((0.000001, 0.0001, 0.01, 1, 100),(0.000001, 0.0001, 0.01, 1, 100)), lw=2,fmt=:png)
 	
 	plot(p_c, p_next, p_sav, p_converge, layout = (2,2))
 end
 
-# ╔═╡ 12ef80a7-65ea-46ff-825b-6cd1d3e50bce
+# ╔═╡ a09c29a6-e193-4bca-ae46-a6b4d0b8046d
 md"""
-### Consumption: Golden-rule vs Optimal Consumption
+- Note that steady state consumption (per effective units of labour) of the equilibrium growth model, is lower than the golden rule consumption. Saving rate is also lower at the stady state. This is because of **discounting**. Using sliders above, put $\beta=1, n=g= 0$ to make the effective discount rate $\tilde{\beta}$ equal to one (so no time discounting). Observe that the steady state consumption and saving rate coinsides with the golden rule then.
+   - but note that, without discounting, the Bellman equation might not be a contraction mapping any more. So the algorithm might not converge, though the the steady state points in the plots above are still correct since we solved for them analytically.
+"""
+
+# ╔═╡ 402b3965-153d-49fd-aa6a-4aeb28d49e99
+md"""
+## Transition Dynamics, Saving Rates and Elasticity of Intertemporal Substitution
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1502,7 +1555,8 @@ version = "1.4.1+1"
 # ╠═c7d6e3e7-7962-4edf-9190-69c257fe1dd7
 # ╟─e6c1a118-6814-4449-98bd-dc86145986c4
 # ╟─1dcada9d-b0f6-461b-bafd-a18a95063787
-# ╠═638e99db-5acf-4ab1-9435-5802cf2ead2b
-# ╟─12ef80a7-65ea-46ff-825b-6cd1d3e50bce
+# ╟─638e99db-5acf-4ab1-9435-5802cf2ead2b
+# ╟─a09c29a6-e193-4bca-ae46-a6b4d0b8046d
+# ╟─402b3965-153d-49fd-aa6a-4aeb28d49e99
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

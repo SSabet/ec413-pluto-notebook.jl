@@ -7,13 +7,13 @@ Below you can find the links to each notebook, dockerised on [Binder](https://my
 
 ### Notebooks
 
-[Solow Model in Discrete Time](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Solow.jl)
+[The Solow Model (in Discrete Time)](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Solow.jl)
 
 [Neoclassical Growth Model](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Neoclassical_Growth.jl)
 
-[Malthusian Economy and Industrialisation](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Malthusian.jl)
+[Stagnation: The Malthusian Economy](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Malthusian.jl)
 
-[Industrialisation](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Industrialisation.jl)
+[Industrialisation: Transition to Modern Growth]()
 
 [Contraction Mapping Theorem]()
 

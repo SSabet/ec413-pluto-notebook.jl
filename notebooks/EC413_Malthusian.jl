@@ -25,14 +25,36 @@ begin
 end
 
 # ╔═╡ 1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
-md"# _Stagnation and Transition to Modern Growth (EC413-AT-2023)_
+md"# _From Stagnation to Modern Growth (EC413-AT-2023)_
 
+## How to use this notebook
+
+This is an **interactive** _Julia_ notebook to let you play around with the models that you have seen in the lecture and seminars; to make it easy for you to study the comparative statics and dynamics of the workhorse models of economic growth.
+
+#### Basic usage
+
+- The good news is, you do not need to know _Julia_ (or any programming language) to make use of this notebook! For example, to see the effect of a change in parameters on the graphs or numerical results, simply use the sliders; changes will immediately take effect in the graphs and values (e.g., in the steady state level of capital per effective units of labour). If no slider is provided for the parameter you are interested in, you just need to change the parameter value at the point it is defined and then hit \"Shift+Enter\"
+
+#### Advanced usage
+
+- Feel free to edit this notebook as you wish! Change or delete the cells, values, functional forms etc., add new cells and experiment; break it and learn! **Don't worry, you won't be breaking the source code, this is your own copy!** If you ended up breaking your copy too much, you can always close the browser and reload it again.
+- In almost all cases, I make the cells (including either the markdown or th Julia code) invisible; If you're interested in reading, inspecting or even playing around with the code, hover your mouse to the left of a cell, there is an ``eye'' icon you can click on for the code to become visible; click it once more to make it invisible again.
+- If you are interested in editing the code and you don't know Julia (but you know Matlab or Python), there is a shortcut: you can use the [excellent cheatsheet](https://cheatsheets.quantecon.org/) here. If you know R but not Julia, you can use this [R-Julia comparison cheatsheet](https://github.com/sswatson/cheatsheets/blob/master/jpr-cheatsheet.pdf).
+- If you are going to inspect the code, notice that the Julia code in these notebooks are mainly for educational purposes, so it's not necessarily efficient or idiomatic. It's mostly written with the purpose that a wider range of the students (with different or even no programming background) can more easily understand the code.
+
+Any questions, suggestions or issues? Don't hesitate to get in touch!
+
+**Have fun!**
 "
 
 # ╔═╡ b3e0afd5-5a3d-4230-9bb9-abeedba57ba3
 md"""
 ## England (1260-2016): Population, Living Standards and Industrialisation
+Solow model was built on the facts of economic growth (Kaldor.) However, sustained growth in the living standards is a relatively recent phenomenon if we look back and the economic history.
 
+To do this, let's use the historical data of England published by the Bank of England, for this purpose. (You can download this **A millennium of macroeconomic data** [from the BoE datasets here](https://www.bankofengland.co.uk/-/media/boe/files/statistics/research-datasets/a-millennium-of-macroeconomic-data-for-the-uk.xlsx); you can find [a report of it here](https://www.bankofengland.co.uk/quarterly-bulletin/2010/q4/the-uk-recession-in-context-what-do-three-centuries-of-data-tell-us).)
+
+Let's use this data to built some animations of the evolution of population and living standards in England from 1260-2016.
 """
 
 # ╔═╡ be623510-65d4-4a95-8c6a-f45fd96ba936
@@ -62,12 +84,14 @@ begin
 	for i=eachindex(year)
 		if ((year[i] >= 1346) & (year[i] <= 1353))
 			col = :black
-		elseif year[i] <= 1760
+		elseif year[i] <= 1670
 			col = :brown
-		elseif ((year[i] >= 1760) & (year[i] <= 1840))
-			col = :red
-		else
+		elseif year[i] <= 1760
+			col= :red
+		elseif year[i] <= 1840
 			col = :blue
+		else
+			col = :green
 		end
 		
 		#col = year[i] < 1760 ? :red : :red
@@ -84,6 +108,8 @@ begin
 			if color_vec[i]== :black
 				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Black Death, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i])
 			elseif color_vec[i] == :red
+				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Transition, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i])
+			elseif color_vec[i] == :blue
 				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Industrial Revolution, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i])
 			elseif color_vec[i] == :brown
 				p_pcap = plot(rgdpcap[1:i], population[1:i], label = "Stagnation, Year: $(Int16(year[i]))", xlabel="Real GDP per Capita", ylabel="Population",seriestype=:scatter, xticks=((1000, 4000, 16000),(1000, 4000, 16000)),yticks=((4,16,64), (4,16,64)), yaxis=:log,xaxis=:log, ylim=(1.5,70), xlim = (500,32000), legend=:topright, markercolor=color_vec[1:i], legendfontcolor = color_vec[i], legendcolor = color_vec[i])
@@ -128,16 +154,148 @@ begin
 
 end
 
-# ╔═╡ 5a2ea32f-1463-46ba-81ce-dd26576e8d30
+# ╔═╡ 8403bee3-5dcf-4b6d-8beb-b4df73a8453c
 md"""
-## Malthusian Economy
+## In the Beginning was the Stagnation
+
+So a long part of our past, at least as long as the available data allows us to go back to, is characterised by stagnation (plus modest, infrequent and unsustained increases in living standards from time to time). So describing it as stagnation seem to be a reasonable approximation to reality.
+
+More interestingly, some of the big improvements in living standards, such as those observed around 1350 was brought about not by technological improvements, but by massive deaths of the population (the Plague which amounted to death of around 1/3 of population in the Europe). Subsequently, we see around three centuries of stagnation in living standards, while the population recovers back to it's 13th century levels, and then surpassing it.
+
+So before proceeding to writing a model for this period, let's summarise these facts (in the same way as our discussion of the Solow model started from discussion of the growth facts).
+
+### Facts of Economic Stagnation
+- Stagnation in income per capita at a low, near-subsistence level.
+- Technological or productivity improvements getting reflected in population density rather than living standards.
 """
 
-# ╔═╡ b9a169a8-7682-4b72-9a67-42101c33e439
+# ╔═╡ 5a2ea32f-1463-46ba-81ce-dd26576e8d30
+md"""
+## Modeling Stagnation with Malthus
+Two ingredients of the Malthusian view of Stagnation:
+- *Diminishing returns to population*: In an economy based on agriculture, increasing scarcity of land prevents scaling up food production with population size.
+- *Positive income-fertility relationship*: When income goes up, people decide to have more children and mortality rates fall. Interpretation:
+   - preferences and fertility choice
+   - Feedback from living standards to infant and child mortality rates.
+
+"""
+
+# ╔═╡ 794860dd-1ad8-401f-8f17-e0bd2c4f4a70
+md"""
+#### Household Preferences
+
+Preferences are represented by the utility function
+
+$u(c_{t},n_{t})=\log(c_{t})+\log\!\left(n_{t}\right)\!.$
+where $c_t$ is the consumption, and $n_t$ is the fertility, that is number of children per each adult.
+- Each period $t$ represents a generation, consisted of $N_t$ adults, so the law of motion of $N_t$ is given by:
+
+$N_{t+1} = n_t N_t$
+- Household's budget cosntraint, can be represented by:
+$c_t + pn_t = y_t$ 
+- where $y_t$ is income per capita, and $p$ is the (fixed) cost of raising children (more generally: how fertility decision is linked to income). Here this relationship is given by the FOC:
+
+$n_t = \frac{y_t}{2p}$
+which implies
+$N_{t+1} = \frac{Y_t}{2p}$
+#### Production in the Malthusian Model
+
+Is given by
+
+$Y_{t}=(A_{t}X)^{\alpha}N_{t}^{1-\alpha}$
+where $X$ is land (in fixed supply).
+
+Technology is written in the land-augmenting form and grows with rate $g$:
+
+$A_{t+1} = (1+g) A_t$
+
+#### Law of Motion of Population
+Putting the FOC of household and the Malthusian production function together, we can find the law of motion of population which summarises the dynamics of the Malthusian model:
+
+$N_{t+1}=\frac{1}{2p}\left(A_{t}X\right)^{\alpha}\left(N_{t}\right)^{1-\alpha}$
+
+"""
+
+# ╔═╡ 5d243f0e-3d43-4f2b-9b8f-b76859600cf6
+md"""
+
+#### Solving for the Steady State
+
+To solve for the steady state, we should first detrend the model. Analogous to the way we used to detrend the Solow model in terms of *per effective unit of labour* (where labour/population used to be the exogenous variable), here we'll detrend in terms of *per effective unit of land* or *per effective acre*. In particular let's define:
+
+$m_{t}=\frac{N_{t}}{A_{t}X}$
+
+Rewriting the population dynamics in terms of effective unit of labour yields:
+
+$m_{t+1}=\frac{1}{(1+g)2p}\left(m_{t}\right)^{1-\alpha}.$
+
+From this, we can find the steady state level of population per effective acre:
+
+$\bar{m}=\left(\frac{1}{(1+g)2p}\right)^{\frac{1}{\alpha}}.$
+
+What about income per capita? Note that
+
+$y_t =\frac{Y_t}{N_t}=\left({\frac{A_{t}X}{N_{t}}}\right)^{\alpha}=(m_{t})^{-\alpha}$
+
+So there is a steady state level of income per capita given by:
+
+$\bar{y}=\Big(\frac{1}{(1+g)2p}\Big)^{\frac{-\alpha}{\alpha}}=(1+g)2p.$
+
+**That is, in the Malthusian world income per capita stagnates even if there is sustained rise in technology.**
+
+How come? Where does all the technological progress go, if not to increase the living standards? The answer is to look at the fertility:
+
+$\bar{n}=\frac{\bar{y}}{2p}=1+g.$
+
+So in the steady state, **population grows just fast enough to offset population growth.**
+
+"""
+
+
+# ╔═╡ 632804a2-aaf0-401b-80ee-2e286ec6e41e
+md"""
+This prediction of the Malthusian model, that productive countries in the Malthusian world are different from their less productive counterparts, mostly in terms of their population density rather than living standards, is in line with the historical data.
+Where one can observe that more technologically advanced countries (Eurasia) had higher population density than the less technologically advanced (say Americas or Australia).
+
+Note also that while there is no possibility of sustained growth in income per capita in the Malthusian model, there can be differences in income per capita between countries or regions. However, this mostly reflects differences in the marriage patterns.
+
+![Population and Land Productivity](https://github.com/SSabet/ec413-pluto-notebook.jl/blob/main/images/lec4_population_land.png)
+"""
+
+# ╔═╡ a4377f80-d914-4f01-ae66-69c0abeed7ae
+md"""
+## Malthusian Economy: Effect of Shocks
+
+Suppose our Malthusian economy is already at its steady state. Let's see how the economy evolves after a shock to the population or the land. To this end, let's start by putting some parameters to our economy:
+
+$\begin{align*}
+\alpha &= 0.5\\
+X &= 4\\
+g &= 0.02\\
+p &= 1
+\end{align*}$
+
+
+### Negative Population Shock  (the Plague)
+
+Suppose due to a pandemic, or war, the country loses 1/3 of its population (at time zero). What happens afterwards, in a Malthusian economy?
+
+"""
+
+# ╔═╡ f86d85e8-5f20-4319-9195-211aff6bd722
+n_ss(g) = 1+g
+
+# ╔═╡ 003dfa78-5925-4b1d-a969-843727db0116
+m_ss(p,g, α) = ((1/((1+g)*2*p))^(1/α))
+
+# ╔═╡ b461f924-a7f4-43d2-a4ce-9a64c5ae205c
+y_ss(p,g) = (1+g)*2*p
+
+# ╔═╡ 4e2ff591-597a-4a14-a953-c08534ed2f74
 Fₐ(A,X,N,α) = ((A*X)^α)*(N^(1-α))
 
-# ╔═╡ b194308f-ce12-4cde-9599-169b680ae2b9
-function trajectories(A₁, X, N₁, α, g, ϕ, T)
+# ╔═╡ 81ca8764-1ccf-454a-9fbc-44fa13749772
+function trajectories(A₁, X, N₁, α, g, p, T)
 	A = ones(T); A[1] = A₁ # defining a vector for productivities; initialising it with A₁
 	N = ones(T); N[1] = N₁ # defining a vector for population; initialising it with N₁
 	Y = ones(T);
@@ -145,37 +303,23 @@ function trajectories(A₁, X, N₁, α, g, ϕ, T)
 	# now compute future values of variables of interest (A,N,K) according to their laws of motion
 	for t ∈ 2:T
 		A[t] = (1+g)*A[t-1]
-		N[t] = (ϕ/(1+ϕ))*Fₐ(A[t-1], X, N[t-1], α)
-		#Y[t] = F(A[t], K[t], N[t], α)
+		N[t] = Fₐ(A[t-1], X, N[t-1], α)/(2*p)
 	end
 	Y .= Fₐ.(A,X,N,α)
 	(A, N, Y)
 end
 
-# ╔═╡ a4377f80-d914-4f01-ae66-69c0abeed7ae
-md"""
-## Malthusian Economy: Transitional Dynamics
-### Assignment 4, Question 2c
-
-"""
-
-# ╔═╡ f86d85e8-5f20-4319-9195-211aff6bd722
-N_ss(A,X, α, ϕ) = ((ϕ/(1+ϕ))^(1/α))*A*X
-
-# ╔═╡ b461f924-a7f4-43d2-a4ce-9a64c5ae205c
-y_ss(ϕ) = (1+ϕ)/ϕ
-
 # ╔═╡ 40528c53-1542-45b0-89f4-0e71cbd180c0
 begin
-	α_slider = @bind α Slider(0:0.05:1, default=.5, show_value = true)
-	X_slider = @bind X Slider(1:1:10, default=1, show_value = true)
+	α_slider = @bind α Slider(0:0.1:1, default=.5, show_value = true)
+	X_slider = @bind X Slider(1:1:10, default=4, show_value = true)
 	g_slider = @bind g Slider(0:0.02:.2, default=.02, show_value = true)
-	ϕ_slider = @bind ϕ Slider(0:0.5:5, default=1, show_value = true)
+	p_slider = @bind p Slider(0.5:0.5:4, default=1, show_value = true)
 	
-	N₁_slider = @bind N₁ Slider(0.5:.5:10, default=1, show_value = true)
+	#N₁_slider = @bind N₁ Slider(0.5:1.5:5, default=1, show_value = true)
 	
 	md"""
-	Let's start with these parameters. You can use the sliders to change them and see the effects:
+	Below you can see the living standards and the fertility in the steady state as well as in the transition following a large negative population shock; use sliders to play with parameters to see whether and how they affect the steady state as well as the dynamics change:
 	
 	α: $(α_slider)
 	
@@ -183,109 +327,90 @@ begin
 	
 	g: $(g_slider)
 	
-	ϕ: $(ϕ_slider)
+	p: $(p_slider)
 	
-	N₁: $(N₁_slider)
 	"""
-end
-
-# ╔═╡ 0ea1896b-eea9-4e43-afd1-9f5661a7b52f
-begin
-	#N₁ = 1 # initial population
-	A₁ = 1 # initial Malthusian Technology
-	T = 50
-	trajectories(A₁, X, N₁, α, g, ϕ, T)
-	nothing
 end
 
 # ╔═╡ 3880eb84-17d5-4533-a242-5a4dee87a97a
 begin
-	Xₑ = 8
+	A₁ = 1 # initial Malthusian Technology
+	T = 50
+	
 	Xᵢ = 4
-	N_ssₑ = N_ss(A₁, Xₑ, α, ϕ)
-	N_ssᵢ = N_ss(A₁, Xᵢ, α, ϕ)
-	y_ssₑ = y_ss(ϕ)
-	y_ssᵢ = y_ss(ϕ)
+	n_ssᵢ = n_ss(g)
+	m_ssᵢ = m_ss(p,g,α)
+	
+	y_ssᵢ = y_ss(p,g)
+	nothing
 end
 
 # ╔═╡ 2b9941b7-1abe-4f69-8b92-7d03f47bd56a
 begin
 	time = -5:T-6
 	
-	Aᵢ = A₁*ones(T)
-	Nᵢ = N_ssᵢ*ones(T)
-	Yᵢ = y_ssᵢ.*Nᵢ
-	Aᵢ[6:T], Nᵢ[6:T], Yᵢ[6:T] = trajectories(A₁, Xᵢ, N_ssᵢ/2, α, g, ϕ, T-5)
+	Aᵢ = A₁*exp.(time)
+	nᵢ = n_ssᵢ*ones(T)
+	Nᵢ = m_ssᵢ*Xᵢ*Aᵢ
+	Yᵢ = m_ssᵢ*Nᵢ
+	
+	Aᵢ[6:T], Nᵢ[6:T], Yᵢ[6:T] = trajectories(A₁, Xᵢ, A₁*m_ssᵢ*Xᵢ*2/3, α, g, p, T-5)
+	nᵢ[6:T] = Nᵢ[6:T]./Nᵢ[5:T-1]
 	yᵢ = Yᵢ./Nᵢ
+	yᵢ[1:5]=y_ssᵢ*ones(5)
 	
-	Aₑ = A₁*ones(T)
-	Nₑ = N_ssₑ*ones(T)
-	Yₑ = y_ssₑ.*Nₑ	
-	yₑ = Yₑ./Nₑ
 	nothing
 end
 
-# ╔═╡ 9790bd65-3de3-4cbb-8f70-9b267ee92dee
+# ╔═╡ aa1d87e5-bc32-4a2d-84bb-0056d83651e8
 begin
-	plot(time, yₑ, label = "England", lw = 2, xlabel = "time", ylabel = L"\frac{Y_t}{N_t}",fmt=:png)
+	p_yi=plot(time, yᵢ, label = "Income per capita after a massive shock to population", lw = 2, xlabel = "time", ylabel = L"$\frac{Y_t}{N_t}$",fmt=:png)
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
-	p_y = plot!(time, yᵢ, label = "Ireland", lw = 2)
+	p_yi = plot!(time, y_ssᵢ*ones(T), label = "Income per capital at the steady state", lw = 2)
 
-	plot(time, Nₑ, label = "England", lw = 2, xlabel = "time", ylabel = L"N_t",fmt=:png)
+	p_ni=plot(time, nᵢ, label = "Fertility after a massive shock to population", lw = 2, xlabel = "time", ylabel = L"${n_t}$", legend= :bottomright,fmt=:png)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
-	p_N = plot!(time, Nᵢ, label = "Ireland", ls=:dash, lw = 2)
+	p_ni = plot!(time, n_ssᵢ*ones(T), label = "Fertility at the steady state", ls=:dash, lw = 2)
 	
-	plot(p_y,p_N, layout=(2,1))
+	plot(p_yi,p_ni, layout=(2,1))
 end
 
-# ╔═╡ b62e77b7-9b38-4122-a43f-b2efc43421a4
+# ╔═╡ cb77e4f6-46bb-415a-9bbf-799c23994e38
 md"""
 
-### Assignment 4, Question 2d
+### Positive Land Shock (the American Frontier)
 
+After the arrival of European settlers in North America, their living standards and fertility were substantially increased compared to Europe. However, over time, the population density rose again, and fertility decreased again.
+
+Let's try to model this with our Malthusian economy, in terms of a sudden increase in land $X$ from 4 to 8.
 """
 
-# ╔═╡ bde5d0d5-6089-4f4b-bb1a-757596d5bc52
+# ╔═╡ 9dd7ab8c-ae0e-43a3-8ebe-d5ac68d3fd2a
 begin
-
-	#N_ssₑ2 = N_ss(A₁*2, Xₑ, α, ϕ)
-	#N_ssᵢ2 = N_ss(A₁, Xᵢ, α, ϕ)
-	#y_ssₑ = y_ss(ϕ)
-	#y_ssᵢ = y_ss(ϕ)
-
-	Aᵢ2 = A₁*ones(T)
-	Nᵢ2 = N_ssᵢ*ones(T)
-	Yᵢ2 = y_ssᵢ.*Nᵢ2
-	#Aᵢ[6:T], Nᵢ[6:T], Yᵢ[6:T] = trajectories(A₁, Xᵢ, N_ssᵢ/2, α, g, ϕ, T-5)
-	yᵢ2 = Yᵢ2./Nᵢ2
-	
-	Aₑ2 = A₁*ones(T)
-	Nₑ2 = N_ssₑ*ones(T)
-	Yₑ2 = y_ssₑ.*Nₑ
-	Aₑ2[6:T], Nₑ2[6:T], Yₑ2[6:T] = trajectories(2*A₁, Xₑ, N_ssₑ, α, g, ϕ, T-5)
-	yₑ2 = Yₑ2./Nₑ2
+	Aₐ = A₁*exp.(time)
+	nₐ = n_ssᵢ*ones(T)
+	Nₐ = m_ssᵢ*Xᵢ*Aₐ
+	Yₐ = m_ssᵢ*Nₐ
+	#yᵢ = y_ssᵢ.*Nᵢ
+	Aₐ[6:T], Nₐ[6:T], Yₐ[6:T] = trajectories(A₁, Xᵢ*2, A₁*m_ssᵢ*Xᵢ, α, g, p, T-5)
+	nₐ[6:T] = Nₐ[6:T]./Nₐ[5:T-1]
+	yₐ = Yₐ./Nₐ
+	yₐ[1:5]=y_ssᵢ*ones(5)
 	nothing
 end
 
-# ╔═╡ f4df4665-4207-4108-ad9e-464017185aa7
+# ╔═╡ 07f4611f-aeb0-42b4-8622-0de5de9dbbaf
 begin
-	plot(time, yₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"$\frac{Y_t}{N_t}$",fmt=:png)
+	p_ya=plot(time, yₐ, label = "Income per capita after the land discovery", lw = 2, xlabel = "time", ylabel = L"$\frac{Y_t}{N_t}$",fmt=:png)
 	plot!([0], seriestype = :vline, linestyle=:dash, label = "")
-	p_y2 = plot!(time, yᵢ2, label = "Ireland", lw = 2)
+	p_ya = plot!(time, y_ssᵢ*ones(T), label = "Income per capital at the steady state", lw = 2)
 
-	plot(time, Nₑ2, label = "England", lw = 2, xlabel = "time", ylabel = L"${N_t}$", legend= :bottomright,fmt=:png)
+	p_na=plot(time, nₐ, label = "Fertility after the land discovery", lw = 2, xlabel = "time", ylabel = L"${n_t}$", legend= :bottomright,fmt=:png)
 	plot!([0], seriestype = :vline, ls=:dash, label = "")
-	p_N2 = plot!(time, Nᵢ2, label = "Ireland", ls=:dash, lw = 2)
+	p_na = plot!(time, n_ssᵢ*ones(T), label = "Fertility at the steady state", ls=:dash, lw = 2)
 	
-	plot(p_y2,p_N2, layout=(2,1))
+	plot(p_ya,p_na, layout=(2,1))
 end
-
-# ╔═╡ c676e221-2054-47e2-825a-551ed8f5e3f3
-md"""
-## Industrialisation: the Two-Sector Model
-
-
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1406,20 +1531,23 @@ version = "1.4.1+1"
 # ╟─97e86737-7446-471d-889c-0281c3458382
 # ╟─fe9fc09b-c418-4261-be30-c78540318f21
 # ╟─fa690370-813c-4dcb-bfc0-30a6da39369b
+# ╟─8403bee3-5dcf-4b6d-8beb-b4df73a8453c
 # ╟─5a2ea32f-1463-46ba-81ce-dd26576e8d30
-# ╠═b9a169a8-7682-4b72-9a67-42101c33e439
-# ╟─b194308f-ce12-4cde-9599-169b680ae2b9
-# ╠═0ea1896b-eea9-4e43-afd1-9f5661a7b52f
+# ╟─794860dd-1ad8-401f-8f17-e0bd2c4f4a70
+# ╟─5d243f0e-3d43-4f2b-9b8f-b76859600cf6
+# ╟─632804a2-aaf0-401b-80ee-2e286ec6e41e
 # ╟─a4377f80-d914-4f01-ae66-69c0abeed7ae
 # ╠═f86d85e8-5f20-4319-9195-211aff6bd722
+# ╠═003dfa78-5925-4b1d-a969-843727db0116
 # ╠═b461f924-a7f4-43d2-a4ce-9a64c5ae205c
+# ╠═4e2ff591-597a-4a14-a953-c08534ed2f74
+# ╟─81ca8764-1ccf-454a-9fbc-44fa13749772
 # ╟─3880eb84-17d5-4533-a242-5a4dee87a97a
 # ╟─2b9941b7-1abe-4f69-8b92-7d03f47bd56a
 # ╟─40528c53-1542-45b0-89f4-0e71cbd180c0
-# ╟─9790bd65-3de3-4cbb-8f70-9b267ee92dee
-# ╟─b62e77b7-9b38-4122-a43f-b2efc43421a4
-# ╟─bde5d0d5-6089-4f4b-bb1a-757596d5bc52
-# ╟─f4df4665-4207-4108-ad9e-464017185aa7
-# ╟─c676e221-2054-47e2-825a-551ed8f5e3f3
+# ╟─aa1d87e5-bc32-4a2d-84bb-0056d83651e8
+# ╟─cb77e4f6-46bb-415a-9bbf-799c23994e38
+# ╟─9dd7ab8c-ae0e-43a3-8ebe-d5ac68d3fd2a
+# ╟─07f4611f-aeb0-42b4-8622-0de5de9dbbaf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
