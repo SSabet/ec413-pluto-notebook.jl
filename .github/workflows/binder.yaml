@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '!images/**'
+    # paths:
+    #   - '!images/**'
 
 
 jobs:
