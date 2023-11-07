@@ -13,7 +13,7 @@ Below you can find the links to each notebook, dockerised on [Binder](https://my
 
 [Stagnation: The Malthusian Economy](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Malthusian.jl)
 
-[Industrialisation: Transition to Modern Growth]()
+[Industrialisation: Transition to Modern Growth and the Role of Subsistence Level of Food](https://mybinder.org/v2/gh/SSabet/ec413-pluto-notebook.jl/HEAD?urlpath=pluto/open?path=/home/jovyan/notebooks/EC413_Industrialisation_food.jl)
 
 [Contraction Mapping Theorem]()
 
