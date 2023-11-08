@@ -47,9 +47,21 @@ Any questions, suggestions or issues? Don't hesitate to get in touch!
 **Have fun!**
 "
 
+# ╔═╡ 1b96f34b-9355-4792-9d68-c822b0e39cda
+begin
+struct Wow
+filename
+end
+
+function Base.show(io::IO, ::MIME"image/png", w::Wow)
+write(io, read(w.filename))
+end
+end
+
 # ╔═╡ b3e0afd5-5a3d-4230-9bb9-abeedba57ba3
 md"""
 ## England (1260-2016): Population, Living Standards and Industrialisation
+
 Solow model was built on the facts of economic growth (Kaldor.) However, sustained growth in the living standards is a relatively recent phenomenon if we look back and the economic history.
 
 To do this, let's use the historical data of England published by the Bank of England, for this purpose. (You can download this **A millennium of macroeconomic data** [from the BoE datasets here](https://www.bankofengland.co.uk/-/media/boe/files/statistics/research-datasets/a-millennium-of-macroeconomic-data-for-the-uk.xlsx); you can find [a report of it here](https://www.bankofengland.co.uk/quarterly-bulletin/2010/q4/the-uk-recession-in-context-what-do-three-centuries-of-data-tell-us).)
@@ -126,7 +138,7 @@ begin
 
 end
 
-# ╔═╡ fa690370-813c-4dcb-bfc0-30a6da39369b
+# ╔═╡ e10dae3b-baaa-483e-b64c-b1697b992c95
 begin
 		a = Animation()
 	
@@ -156,7 +168,7 @@ end
 
 # ╔═╡ 8403bee3-5dcf-4b6d-8beb-b4df73a8453c
 md"""
-## In the Beginning was the Stagnation
+# In the Beginning was the Stagnation?
 
 So a long part of our past, at least as long as the available data allows us to go back to, is characterised by stagnation (plus modest, infrequent and unsustained increases in living standards from time to time). So describing it as stagnation seem to be a reasonable approximation to reality.
 
@@ -164,7 +176,7 @@ More interestingly, some of the big improvements in living standards, such as th
 
 So before proceeding to writing a model for this period, let's summarise these facts (in the same way as our discussion of the Solow model started from discussion of the growth facts).
 
-### Facts of Economic Stagnation
+## Facts of Economic Stagnation
 - Stagnation in income per capita at a low, near-subsistence level.
 - Technological or productivity improvements getting reflected in population density rather than living standards.
 """
@@ -259,8 +271,10 @@ Where one can observe that more technologically advanced countries (Eurasia) had
 
 Note also that while there is no possibility of sustained growth in income per capita in the Malthusian model, there can be differences in income per capita between countries or regions. However, this mostly reflects differences in the marriage patterns.
 
-![Population and Land Productivity](https://github.com/SSabet/ec413-pluto-notebook.jl/blob/main/images/lec4_population_land.png)
 """
+
+# ╔═╡ 51e59c26-5f2b-480c-95dd-8ad1a128408e
+Wow("/home/user/Github/ec413-pluto-notebook/images/lec4_population_land.png")
 
 # ╔═╡ a4377f80-d914-4f01-ae66-69c0abeed7ae
 md"""
@@ -1526,16 +1540,18 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─58753ecf-c322-4fb6-bb80-4abfc7cb5459
 # ╟─1d082bd5-0086-4e29-aa5c-f4d41e1cf0fc
+# ╟─1b96f34b-9355-4792-9d68-c822b0e39cda
 # ╟─b3e0afd5-5a3d-4230-9bb9-abeedba57ba3
 # ╟─be623510-65d4-4a95-8c6a-f45fd96ba936
 # ╟─97e86737-7446-471d-889c-0281c3458382
 # ╟─fe9fc09b-c418-4261-be30-c78540318f21
-# ╟─fa690370-813c-4dcb-bfc0-30a6da39369b
+# ╟─e10dae3b-baaa-483e-b64c-b1697b992c95
 # ╟─8403bee3-5dcf-4b6d-8beb-b4df73a8453c
 # ╟─5a2ea32f-1463-46ba-81ce-dd26576e8d30
 # ╟─794860dd-1ad8-401f-8f17-e0bd2c4f4a70
 # ╟─5d243f0e-3d43-4f2b-9b8f-b76859600cf6
 # ╟─632804a2-aaf0-401b-80ee-2e286ec6e41e
+# ╟─51e59c26-5f2b-480c-95dd-8ad1a128408e
 # ╟─a4377f80-d914-4f01-ae66-69c0abeed7ae
 # ╠═f86d85e8-5f20-4319-9195-211aff6bd722
 # ╠═003dfa78-5925-4b1d-a969-843727db0116
