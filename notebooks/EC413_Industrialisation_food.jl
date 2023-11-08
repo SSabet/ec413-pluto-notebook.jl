@@ -120,7 +120,7 @@ N_1 &= 1.
 
 # ╔═╡ 4649c05d-1092-4840-8910-084cd6b262cc
 begin
-	T = 150
+	#T = 200
 	
 	X = 1
 	p = 0.5
@@ -196,20 +196,24 @@ end
 # ╔═╡ 6e671604-9d56-40f4-974a-dbbcc4612a07
 begin
 	f_slider = @bind f Slider(0.5:0.5:1.5, default=1, show_value = true)
+	T_slider = @bind T Slider(100:50:200, default=150, show_value = true)
+
 	
 	md"""
 	### Subsistence Level and Possibility of the Malthusian Trap
 	
 	Here is the interesting bit: the take-off might or might not happen depending on how much food $f$ is necessary for susbsistence. 
 	
-	1. If $f=0.5$, the economy starts taking off from the third generation. Here the food constraint is not binding and the economy transitions to the modern growth.
+	1. If the subsistence level is higher, say at $1.5,$ the economy won't take off at all and is stuck at the Malthusian stagnation.
 	
-	2. If the subsistence level is "a bit" higher, $f=1$, the economy takes off at the sixth generation, but then is pulled back again towards the Malthusian stagnation.
+	2. If the subsistence level is "a bit lower", $f=1$, the economy takes off at the sixth generation, but then is pulled back again towards the Malthusian stagnation.
+
+	3. Finally, if $f=0.5$, the economy starts taking off from the third generation, where the food constraint is not binding anymore and we seem to have started transitioning to the modern growth. What happens if you increase $T$? Can you explain?	
 	
-	3. Finally, if the subsistence level is higher, say at $1.5,$ the economy won't take off and is stuck at the Malthusian stagnation.
 	
 	f: $(f_slider)
 	
+	T: $(T_slider)
 	"""
 end
 
@@ -242,7 +246,42 @@ begin
 end
 
 # ╔═╡ ce03a40b-1b38-43a0-bce4-bb5961b1720f
+md"""
+#### Intuition
 
+If the goods produced by the two sectors were fully substitutable, and we had free movement of labour between the two sectors, the marginal product of labour would be equalised between the two (provided that the industrial sector is activated.) This would then pin down the sectoral allocation of labour:
+
+$N_{it}=N_{t}-N_{at}=N_{t}-\left(\frac{1-\alpha}{A_{it}}\right)^{\frac{1}{\alpha}}A_{at}X.$
+
+Note that here, there is a negative relation between the agricultural productivity and the size of labour force employed in industry: the more productive agriculture is, the fewer workers will move to industry.
+
+However, when food is a necessity in the way defined above, the allocation of labour to agriculture/industry is given by:
+
+$N_{it}=N_{t}-N_{at}=N_{t}-\left(\frac{fN_t}{(A_{at}X)^\alpha}\right)^{\frac{1}{1-\alpha}}.$
+
+- Now there is a positive relation between the agricultural productivity and size of the labour force in industry: the more productive agriculture is, the more workers will work in industry (there is some minimum amount of food required to feed the population, and that can be produced with less workers in agriculture).
+- So an acceleration in the agricultural productivity growth will accelerate transition to industry.
+
+- But more importantly, this, combined with the positive link between income per capita and fertility, makes the sustained growth in living standards impossible. Sustained rise in output per capita translated into the sustained rise in fertility, which means the population will explode at some point, pushing the economy back to the Malthusian state.
+"""
+
+# ╔═╡ 53b90f2c-41f2-4bf4-8012-2b72be6f8efb
+md"""
+### The Malthusian Disaster
+
+- If income per capita rises, fertility rises, so at some point the pace of rise in population (fertility) exceeds the productivity growth. 
+- As the demand for food is proportional to the population, this means the demand for food will at some point outpace the rise in productivity of the agricultural sector.
+- This translates into a Malthusian disaster: the economy runs out of food.
+"""
+
+# ╔═╡ cbab8518-23fc-4cd3-9383-6d03d0cbc5a6
+md"""
+## Successful industrialisation in Britain
+
+- Large increase in agricultural productivity around 1800 (due to enclosures etc.)
+- International trade: large-scale imports of food and timber from e.g., the former colonies in the Americas, gave the England more room to specialise in industrial production.
+- Demographic transition: with food being a necessity, the demographic transition (change in the relation between fertility and living standards) reemrges as an essential component of industrialisation.
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1358,6 +1397,8 @@ version = "1.4.1+1"
 # ╠═a9907f7f-ae76-4218-b7b9-81610fcf65f7
 # ╟─6e671604-9d56-40f4-974a-dbbcc4612a07
 # ╟─b4981d16-b5ca-434c-8f28-700f5723a25b
-# ╠═ce03a40b-1b38-43a0-bce4-bb5961b1720f
+# ╟─ce03a40b-1b38-43a0-bce4-bb5961b1720f
+# ╟─53b90f2c-41f2-4bf4-8012-2b72be6f8efb
+# ╟─cbab8518-23fc-4cd3-9383-6d03d0cbc5a6
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
