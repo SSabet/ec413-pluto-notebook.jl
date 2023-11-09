@@ -274,7 +274,7 @@ Note also that while there is no possibility of sustained growth in income per c
 """
 
 # ╔═╡ 51e59c26-5f2b-480c-95dd-8ad1a128408e
-Wow("/home/user/Github/ec413-pluto-notebook/images/lec4_population_land.png")
+Wow("/home/jovyan/images/lec4_population_land.png")
 
 # ╔═╡ a4377f80-d914-4f01-ae66-69c0abeed7ae
 md"""
